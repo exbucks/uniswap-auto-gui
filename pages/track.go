@@ -16,14 +16,17 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel("Address: "), widget.NewEntry(), widget.NewButton("+", nil))
+			return container.NewHBox(widget.NewLabel("Address: "), widget.NewEntry(), widget.NewLabel("Price x.y"), widget.NewButton("+", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			f := item.(binding.Float)
-			text := obj.(*fyne.Container).Objects[1].(*widget.Entry)
-			text.Bind(binding.FloatToStringWithFormat(f, "%0.1f"))
+			address := obj.(*fyne.Container).Objects[1].(*widget.Entry)
+			address.Bind(binding.FloatToStringWithFormat(f, "%0.1f"))
 
-			btn := obj.(*fyne.Container).Objects[2].(*widget.Button)
+			price := obj.(*fyne.Container).Objects[2].(*widget.Label)
+			price.Bind(binding.FloatToStringWithFormat(f, "Price %0.1f"))
+
+			btn := obj.(*fyne.Container).Objects[3].(*widget.Button)
 			btn.OnTapped = func() {
 				val, _ := f.Get()
 				_ = f.Set(val + 1)
