@@ -20,7 +20,7 @@ const preferenceCurrentPage = "currentPage"
 var topWindow fyne.Window
 
 func main() {
-	a := app.NewWithID("io.fyne.demo")
+	a := app.NewWithID("go.uniswap.auto")
 	a.SetIcon(theme.FyneLogo())
 	logLifecycle(a)
 	w := a.NewWindow("Uniswap Auto")
