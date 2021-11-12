@@ -29,7 +29,7 @@ func welcomeScreen(_ fyne.Window) fyne.CanvasObject {
 	}
 
 	return container.NewCenter(container.NewVBox(
-		widget.NewLabelWithStyle("Welcome to the Fyne toolkit demo app", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		widget.NewLabelWithStyle("Welcome to the Uniswap Auto", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		logo,
 		container.NewHBox(
 			widget.NewHyperlink("fyne.io", parseURL("https://fyne.io/")),
