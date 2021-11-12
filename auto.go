@@ -7,20 +7,20 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/cmd/fyne_demo/tutorials"
 	"fyne.io/fyne/v2/cmd/fyne_settings/settings"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/uniswap-auto-gui/pages"
 )
 
-const preferenceCurrentTutorial = "currentTutorial"
+const preferenceCurrentPage = "currentPage"
 
 var topWindow fyne.Window
 
 func main() {
-	a := app.NewWithID("go.uniswap.auto")
+	a := app.NewWithID("io.fyne.demo")
 	a.SetIcon(theme.FyneLogo())
 	logLifecycle(a)
 	w := a.NewWindow("Uniswap Auto")
@@ -33,13 +33,34 @@ func main() {
 	title := widget.NewLabel("Component name")
 	intro := widget.NewLabel("An introduction would probably go\nhere, as well as a")
 	intro.Wrapping = fyne.TextWrapWord
+	setPage := func(t pages.Page) {
+		if fyne.CurrentDevice().IsMobile() {
+			child := a.NewWindow(t.Title)
+			topWindow = child
+			child.SetContent(t.View(topWindow))
+			child.Show()
+			child.SetOnClosed(func() {
+				topWindow = w
+			})
+			return
+		}
 
-	tutorial := container.NewBorder(
+		title.SetText(t.Title)
+		intro.SetText(t.Intro)
+
+		content.Objects = []fyne.CanvasObject{t.View(w)}
+		content.Refresh()
+	}
+
+	page := container.NewBorder(
 		container.NewVBox(title, widget.NewSeparator(), intro), nil, nil, nil, content)
-	split := container.NewHSplit(tutorial, tutorial)
-	split.Offset = 0.2
-	w.SetContent(split)
-
+	if fyne.CurrentDevice().IsMobile() {
+		w.SetContent(makeNav(setPage, false))
+	} else {
+		split := container.NewHSplit(makeNav(setPage, true), page)
+		split.Offset = 0.2
+		w.SetContent(split)
+	}
 	w.Resize(fyne.NewSize(640, 460))
 	w.ShowAndRun()
 }
@@ -126,15 +147,15 @@ func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
 	)
 }
 
-func makeNav(setTutorial func(tutorial tutorials.Tutorial), loadPrevious bool) fyne.CanvasObject {
+func makeNav(setPage func(page pages.Page), loadPrevious bool) fyne.CanvasObject {
 	a := fyne.CurrentApp()
 
 	tree := &widget.Tree{
 		ChildUIDs: func(uid string) []string {
-			return tutorials.TutorialIndex[uid]
+			return pages.PageIndex[uid]
 		},
 		IsBranch: func(uid string) bool {
-			children, ok := tutorials.TutorialIndex[uid]
+			children, ok := pages.PageIndex[uid]
 
 			return ok && len(children) > 0
 		},
@@ -142,23 +163,23 @@ func makeNav(setTutorial func(tutorial tutorials.Tutorial), loadPrevious bool) f
 			return widget.NewLabel("Collection Widgets")
 		},
 		UpdateNode: func(uid string, branch bool, obj fyne.CanvasObject) {
-			t, ok := tutorials.Tutorials[uid]
+			t, ok := pages.Pages[uid]
 			if !ok {
-				fyne.LogError("Missing tutorial panel: "+uid, nil)
+				fyne.LogError("Missing page panel: "+uid, nil)
 				return
 			}
 			obj.(*widget.Label).SetText(t.Title)
 		},
 		OnSelected: func(uid string) {
-			if t, ok := tutorials.Tutorials[uid]; ok {
-				a.Preferences().SetString(preferenceCurrentTutorial, uid)
-				setTutorial(t)
+			if t, ok := pages.Pages[uid]; ok {
+				a.Preferences().SetString(preferenceCurrentPage, uid)
+				setPage(t)
 			}
 		},
 	}
 
 	if loadPrevious {
-		currentPref := a.Preferences().StringWithFallback(preferenceCurrentTutorial, "welcome")
+		currentPref := a.Preferences().StringWithFallback(preferenceCurrentPage, "welcome")
 		tree.Select(currentPref)
 	}
 
