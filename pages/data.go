@@ -14,11 +14,12 @@ var (
 	// Pages defines the metadata for each page
 	Pages = map[string]Page{
 		"welcome": {"Welcome", "", welcomeScreen},
+		"track":   {"Track", "", trackScreen},
 	}
 
 	// PageIndex  defines how our pages should be laid out in the index tree
 	PageIndex = map[string][]string{
-		"":            {"welcome"},
+		"":            {"welcome", "track"},
 		"collections": {"list", "table", "tree"},
 		"containers":  {"apptabs", "border", "box", "center", "doctabs", "grid", "scroll", "split"},
 		"widgets":     {"accordion", "button", "card", "entry", "form", "input", "progress", "text", "toolbar"},
