@@ -40,8 +40,9 @@ func stableToken(pings <-chan string, id string, list binding.ExternalStringList
 		min, max, _, _, _, _ := minMax(swaps)
 		last, _ := priceOfSwap(swaps.Data.Swaps[0])
 		_, _, period := periodOfSwaps(swaps)
+		howold := howMuchOld(swaps)
 
-		if (max-min)/last < 0.1 && period > 24 {
+		if (max-min)/last < 0.1 && period > 24 && howold < 24 {
 			list.Append(id)
 		}
 	}
@@ -56,8 +57,9 @@ func tradableToken(pings <-chan string, id string, list binding.ExternalStringLi
 		min, max, _, _, _, _ := minMax(swaps)
 		last, _ := priceOfSwap(swaps.Data.Swaps[0])
 		_, _, period := periodOfSwaps(swaps)
+		howold := howMuchOld(swaps)
 
-		if (max-min)/last > 0.1 && period < 6 {
+		if (max-min)/last > 0.1 && period < 6 && howold < 24 {
 			list.Append(id)
 		}
 	}

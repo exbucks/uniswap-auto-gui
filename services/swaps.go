@@ -117,3 +117,11 @@ func minMax(swaps utils.Swaps) (
 	maxTime = time.Unix(_max, 0)
 	return min, max, minTarget, maxTarget, minTime, maxTime
 }
+
+func howMuchOld(swaps utils.Swaps) float64 {
+	latest, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
+	end := time.Unix(latest, 0)
+	now := time.Now()
+	period := now.Sub(end)
+	return period.Hours()
+}
