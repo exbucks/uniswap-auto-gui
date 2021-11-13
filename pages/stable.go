@@ -60,7 +60,7 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 					utils.Post(c1, "swaps", pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, a := services.SwapsInfo(swaps)
+					n, p, c, d, a := services.SwapsInfo(swaps, 0.1)
 					label.SetText(n)
 					price.SetText(fmt.Sprintf("%f", p))
 					change.SetText(fmt.Sprintf("%f", c))

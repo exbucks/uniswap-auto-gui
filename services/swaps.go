@@ -7,11 +7,11 @@ import (
 	"github.com/uniswap-auto-gui/utils"
 )
 
-func SwapsInfo(swaps utils.Swaps) (name string, price float64, change float64, duration float64, alert bool) {
+func SwapsInfo(swaps utils.Swaps, ps float64) (name string, price float64, change float64, duration float64, alert bool) {
 	name = tokenName(swaps)
 	price, change = priceChanges(swaps)
 	_, _, duration = periodOfSwaps(swaps)
-	alert = priceAlert(swaps, 0.1)
+	alert = priceAlert(swaps, ps)
 	return name, price, change, duration, alert
 }
 

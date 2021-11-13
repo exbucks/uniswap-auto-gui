@@ -14,9 +14,9 @@ import (
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
-	f := 0.1
-	data := binding.BindFloat(&f)
-	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(data, "Price change alert percent: %0.2f"))
+	ps := 0.1
+	data := binding.BindFloat(&ps)
+	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(data, "Price change alert percent (*100): %f"))
 	entry := widget.NewEntryWithData(binding.FloatToString(data))
 	floats := container.NewGridWithColumns(2, label, entry)
 
@@ -70,7 +70,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					select {
 					case msg1 := <-c1:
 						json.Unmarshal([]byte(msg1), &eth)
-						n, p, c, d, a := services.SwapsInfo(swaps)
+						n, p, c, d, a := services.SwapsInfo(swaps, ps)
 						label.SetText(n)
 						price.SetText(fmt.Sprintf("%f", p))
 						change.SetText(fmt.Sprintf("%f", c))
@@ -80,7 +80,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						}
 					case msg2 := <-c2:
 						json.Unmarshal([]byte(msg2), &swaps)
-						n, p, c, d, a := services.SwapsInfo(swaps)
+						n, p, c, d, a := services.SwapsInfo(swaps, ps)
 						label.SetText(n)
 						price.SetText(fmt.Sprintf("%f", p))
 						change.SetText(fmt.Sprintf("%f", c))
