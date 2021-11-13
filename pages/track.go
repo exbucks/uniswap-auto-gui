@@ -27,6 +27,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
 			dataList.Append(name.Text)
+		} else {
+			services.Notify("test", "test")
 		}
 	})
 
@@ -76,7 +78,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						change.SetText(fmt.Sprintf("%f", c))
 						duration.SetText(fmt.Sprintf("%f hours", d))
 						if a {
-							services.Notify("Price Change Alert", n)
+							services.Notify("Price Change Alert", n, url)
 						}
 					case msg2 := <-c2:
 						json.Unmarshal([]byte(msg2), &swaps)
@@ -86,7 +88,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						change.SetText(fmt.Sprintf("%f", c))
 						duration.SetText(fmt.Sprintf("%f hours", d))
 						if a {
-							services.Notify("Price Change Alert", n)
+							services.Notify("Price Change Alert", n, url)
 						}
 					}
 				}
