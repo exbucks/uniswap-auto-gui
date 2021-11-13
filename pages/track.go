@@ -23,7 +23,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("Price x"), widget.NewButton("Track", nil))
+			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("Price x"), widget.NewButton("Track", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			s := item.(binding.String)
@@ -32,10 +32,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 			f := binding.NewFloat()
 			f.Set(0.1)
-			price := obj.(*fyne.Container).Objects[2].(*widget.Label)
+			price := obj.(*fyne.Container).Objects[1].(*widget.Label)
 			price.Bind(binding.FloatToStringWithFormat(f, "Price %f"))
 
-			btn := obj.(*fyne.Container).Objects[3].(*widget.Button)
+			btn := obj.(*fyne.Container).Objects[2].(*widget.Button)
 			btn.OnTapped = func() {
 				var eth utils.Crypto
 				var swaps utils.Swaps
