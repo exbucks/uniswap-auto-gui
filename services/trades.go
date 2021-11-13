@@ -25,6 +25,7 @@ func TradableTokens(wg *sync.WaitGroup, pairs utils.Pairs, list binding.External
 
 	for _, item := range pairs.Data.Pairs {
 		c := make(chan string, 1)
+		list.Append(item.Id)
 		fmt.Println(item.Id)
 		go utils.Post(c, "swaps", item.Id)
 		tradableToken(c, item.Id, list)

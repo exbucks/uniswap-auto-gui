@@ -30,17 +30,22 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewBorder(nil, nil, widget.NewLabel("address"), widget.NewButton("+", nil),
-				widget.NewLabel("item x.y"))
+			leftPane := container.NewHBox(widget.NewLabel("token"), widget.NewLabel("address"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
+			return container.NewBorder(nil, nil, leftPane, widget.NewButton("+", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
+			lc := obj.(*fyne.Container).Objects[0].(*fyne.Container)
+
 			f := item.(binding.String)
-			text := obj.(*fyne.Container).Objects[0].(*widget.Label)
+			text := lc.Objects[0].(*widget.Label)
 			text.Bind(f)
 
-			label := obj.(*fyne.Container).Objects[1].(*widget.Label)
+			label := lc.Objects[1].(*widget.Label)
+			price := lc.Objects[2].(*widget.Label)
+			change := lc.Objects[3].(*widget.Label)
+			duration := lc.Objects[4].(*widget.Label)
 
-			btn := obj.(*fyne.Container).Objects[2].(*widget.Button)
+			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
 				fmt.Println("Ok!")
 			}
@@ -53,8 +58,11 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 					utils.Post(c1, "swaps", pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
-					n, _, _, _, a := services.SwapsInfo(swaps)
+					n, p, c, d, a := services.SwapsInfo(swaps)
 					label.SetText(n)
+					price.SetText(fmt.Sprintf("%f", p))
+					change.SetText(fmt.Sprintf("%f", c))
+					duration.SetText(fmt.Sprintf("%f hours", d))
 					if a {
 						services.Notify("Price Change Alert", n)
 					}
