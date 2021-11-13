@@ -16,7 +16,7 @@ func SwapsInfo(swaps utils.Swaps, ps float64) (name string, price float64, chang
 }
 
 func tokenName(swaps utils.Swaps) (name string) {
-	if swaps.Data.Swaps != nil {
+	if swaps.Data.Swaps != nil && len(swaps.Data.Swaps) > 0 {
 		if swaps.Data.Swaps[0].Pair.Token0.Symbol == "WETH" {
 			name = swaps.Data.Swaps[0].Pair.Token1.Name
 		} else {
@@ -28,7 +28,7 @@ func tokenName(swaps utils.Swaps) (name string) {
 }
 
 func priceChanges(swaps utils.Swaps) (price float64, change float64) {
-	if swaps.Data.Swaps != nil {
+	if swaps.Data.Swaps != nil && len(swaps.Data.Swaps) > 0 {
 		price, _ = priceOfSwap(swaps.Data.Swaps[0])
 		last, _ := priceOfSwap(swaps.Data.Swaps[len(swaps.Data.Swaps)-1])
 		change = price - last
@@ -64,7 +64,7 @@ func priceOfSwap(swap utils.Swap) (price float64, target string) {
 
 func periodOfSwaps(swaps utils.Swaps) (first time.Time, last time.Time, period float64) {
 	var duration float64
-	if swaps.Data.Swaps != nil {
+	if swaps.Data.Swaps != nil && len(swaps.Data.Swaps) > 0 {
 		_first, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
 		_last, _ := strconv.ParseInt(swaps.Data.Swaps[len(swaps.Data.Swaps)-1].Timestamp, 10, 64)
 		first = time.Unix(_first, 0)
@@ -76,7 +76,7 @@ func periodOfSwaps(swaps utils.Swaps) (first time.Time, last time.Time, period f
 }
 
 func priceAlert(swaps utils.Swaps, change float64) (state bool) {
-	if swaps.Data.Swaps != nil {
+	if swaps.Data.Swaps != nil && len(swaps.Data.Swaps) > 0 {
 		first, _ := priceOfSwap(swaps.Data.Swaps[0])
 		second, _ := priceOfSwap(swaps.Data.Swaps[1])
 		state = (first-second)/second > change
