@@ -44,6 +44,9 @@ func priceOfSwap(swap utils.Swap) (price float64, target string) {
 		if swap.Amount0In != "0" && swap.Amount1Out != "0" {
 			amountToken, _ = strconv.ParseFloat(swap.Amount1Out, 32)
 			target = "BUY"
+		} else if swap.Amount0Out != "0" && swap.Amount1In != "0" {
+			amountToken, _ = strconv.ParseFloat(swap.Amount1In, 32)
+			target = "SELL"
 		}
 	} else {
 		if swap.Amount0Out != "0" && swap.Amount1In != "0" {
