@@ -23,11 +23,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel("Address: "), widget.NewLabel("address"), widget.NewLabel("Price x"), widget.NewButton("Track", nil))
+			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("Price x"), widget.NewButton("Track", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			s := item.(binding.String)
-			address := obj.(*fyne.Container).Objects[1].(*widget.Label)
+			address := obj.(*fyne.Container).Objects[0].(*widget.Label)
 			address.Bind(s)
 
 			f := binding.NewFloat()
@@ -55,13 +55,13 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						select {
 						case msg1 := <-c1:
 							json.Unmarshal([]byte(msg1), &eth)
-							price := services.LastPriceFromSwaps(eth, swaps)
-							f.Set(price)
+							_, p := services.SwapsInfo(eth, swaps)
+							f.Set(p)
 							// trackSwap(c2, f)
 						case msg2 := <-c2:
 							json.Unmarshal([]byte(msg2), &swaps)
-							price := services.PriceFromSwaps(eth, swaps)
-							f.Set(price)
+							_, p := services.SwapsInfo(eth, swaps)
+							f.Set(p)
 							// trackSwap(c2, f)
 						}
 					}
