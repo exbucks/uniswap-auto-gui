@@ -14,6 +14,12 @@ import (
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
+	f := 0.1
+	data := binding.BindFloat(&f)
+	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(data, "Price change alert percent: %0.2f"))
+	entry := widget.NewEntryWithData(binding.FloatToString(data))
+	floats := container.NewGridWithColumns(2, label, entry)
+
 	dataList := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
 	name := widget.NewEntry()
@@ -87,6 +93,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}()
 		})
 
-	listPanel := container.NewBorder(nil, control, nil, nil, list)
+	listPanel := container.NewBorder(floats, control, nil, nil, list)
 	return container.NewGridWithColumns(1, listPanel)
 }
