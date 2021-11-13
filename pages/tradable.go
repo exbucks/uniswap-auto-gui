@@ -30,22 +30,22 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			leftPane := container.NewHBox(widget.NewLabel("token"), widget.NewLabel("address"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"), widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewHyperlink("KEK", parseURL("https://fyne.io/")))
+			leftPane := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewLabel("token"), widget.NewLabel("address"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 			return container.NewBorder(nil, nil, leftPane, widget.NewButton("+", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			lc := obj.(*fyne.Container).Objects[0].(*fyne.Container)
 
+			dex := lc.Objects[0].(*widget.Hyperlink)
+
 			f := item.(binding.String)
-			text := lc.Objects[0].(*widget.Label)
+			text := lc.Objects[1].(*widget.Label)
 			text.Bind(f)
 
-			label := lc.Objects[1].(*widget.Label)
-			price := lc.Objects[2].(*widget.Label)
-			change := lc.Objects[3].(*widget.Label)
-			duration := lc.Objects[4].(*widget.Label)
-			dex := lc.Objects[5].(*widget.Hyperlink)
-			kek := lc.Objects[6].(*widget.Hyperlink)
+			label := lc.Objects[2].(*widget.Label)
+			price := lc.Objects[3].(*widget.Label)
+			change := lc.Objects[4].(*widget.Label)
+			duration := lc.Objects[5].(*widget.Label)
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
@@ -66,10 +66,8 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 					change.SetText(fmt.Sprintf("%f", c))
 					duration.SetText(fmt.Sprintf("%f hours", d))
 
-					url1 := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
-					url2 := fmt.Sprintf("https://kek.tools/t/0xf8e9f10c22840b613cda05a0c5fdb59a4d6cd7ef?pair=%s", pair)
-					dex.SetURL(parseURL(url1))
-					kek.SetURL(parseURL(url2))
+					url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
+					dex.SetURL(parseURL(url))
 
 					if a {
 						services.Notify("Price Change Alert", n)
