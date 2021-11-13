@@ -51,7 +51,7 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 			case msg1 := <-c1:
 				fmt.Println("Current token: ", msg1)
 			case msg2 := <-c2:
-				trackPairs(msg2)
+				trackStables(msg2)
 			}
 		}
 	}()
@@ -59,7 +59,7 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 	return container.NewBorder(button, nil, nil, nil, table)
 }
 
-func trackPairs(msg string) {
+func trackStables(msg string) {
 	var pairs utils.Pairs
 
 	json.Unmarshal([]byte(msg), &pairs)

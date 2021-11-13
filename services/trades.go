@@ -57,7 +57,7 @@ func tradableToken(pings <-chan string, id string) {
 		_, _, period := periodOfSwaps(swaps)
 
 		if (max-min)/last > 0.1 && period < 6 {
-			// target <- id
+			fmt.Println(id)
 		}
 	}
 }
