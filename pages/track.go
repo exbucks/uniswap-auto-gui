@@ -28,7 +28,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		if name.Text != "" {
 			dataList.Append(name.Text)
 		} else {
-			services.Notify("test", "test")
+			services.Notify("test", "test", "https://www.github.com/hirokimoto")
 		}
 	})
 
