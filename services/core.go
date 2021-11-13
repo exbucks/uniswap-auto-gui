@@ -80,6 +80,20 @@ func Price(eth utils.Crypto, tokens utils.Tokens) (price float64) {
 	return price
 }
 
+func PriceFromSwaps(eth utils.Crypto, swaps utils.Swaps) (price float64) {
+	if eth.Data.Bundles != nil && swaps.Data.Swaps != nil {
+		unit, _ := strconv.ParseFloat(eth.Data.Bundles[0].EthPrice, 32)
+		var amount float64
+		if swaps.Data.Swaps[0].Pair.Token0.Symbol == "WETH" {
+			amount, _ = strconv.ParseFloat(swaps.Data.Swaps[1].Pair.Token1.DerivedETH, 32)
+		} else {
+			amount, _ = strconv.ParseFloat(swaps.Data.Swaps[0].Pair.Token0.DerivedETH, 32)
+		}
+		price = unit * amount
+	}
+	return price
+}
+
 func LastPrice(swaps utils.Swaps) (price float64) {
 	item := swaps.Data.Swaps[0]
 	price, _ = priceOfSwap(item)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -36,12 +37,35 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 			btn := obj.(*fyne.Container).Objects[3].(*widget.Button)
 			btn.OnTapped = func() {
+				var eth utils.Crypto
+				var swaps utils.Swaps
+				c1 := make(chan string)
+				c2 := make(chan string)
+
 				go func() {
 					for {
 						pair, _ := s.Get()
-						c3 := make(chan string)
-						go utils.Post(c3, "swaps", pair)
-						trackSwap(c3, f)
+						utils.Post(c1, "bundles", "")
+						utils.Post(c2, "swaps", pair)
+						time.Sleep(time.Second * 2)
+					}
+				}()
+				go func() {
+					for {
+						select {
+						case msg1 := <-c1:
+							json.Unmarshal([]byte(msg1), &eth)
+							price := services.PriceFromSwaps(eth, swaps)
+							f.Set(price)
+							// fmt.Println("Current price: ", price)
+							// trackSwap(c2, f)
+						case msg2 := <-c2:
+							json.Unmarshal([]byte(msg2), &swaps)
+							price := services.PriceFromSwaps(eth, swaps)
+							f.Set(price)
+							// fmt.Println("Current price: ", price)
+							// trackSwap(c2, f)
+						}
 					}
 				}()
 			}
