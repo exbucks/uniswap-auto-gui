@@ -22,7 +22,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"), widget.NewButton("Track", nil))
+			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			s := item.(binding.String)
@@ -34,80 +34,47 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			change := obj.(*fyne.Container).Objects[3].(*widget.Label)
 			duration := obj.(*fyne.Container).Objects[4].(*widget.Label)
 
-			btn := obj.(*fyne.Container).Objects[5].(*widget.Button)
-			btn.OnTapped = func() {
-				var eth utils.Crypto
-				var swaps utils.Swaps
-				c1 := make(chan string)
-				c2 := make(chan string)
+			var eth utils.Crypto
+			var swaps utils.Swaps
+			c1 := make(chan string)
+			c2 := make(chan string)
 
-				go func() {
-					for {
-						pair, _ := s.Get()
-						utils.Post(c1, "bundles", "")
-						utils.Post(c2, "swaps", pair)
-						time.Sleep(time.Second * 2)
-					}
-				}()
-				go func() {
-					for {
-						select {
-						case msg1 := <-c1:
-							json.Unmarshal([]byte(msg1), &eth)
-							n, p, c, d, a := services.SwapsInfo(swaps)
-							label.SetText(n)
-							price.SetText(fmt.Sprintf("%f", p))
-							change.SetText(fmt.Sprintf("%f", c))
-							duration.SetText(fmt.Sprintf("%f hours", d))
-							if a {
-								services.Notify("Price Change Alert", n)
-							}
-						case msg2 := <-c2:
-							json.Unmarshal([]byte(msg2), &swaps)
-							n, p, c, d, a := services.SwapsInfo(swaps)
-							label.SetText(n)
-							price.SetText(fmt.Sprintf("%f", p))
-							change.SetText(fmt.Sprintf("%f", c))
-							duration.SetText(fmt.Sprintf("%f hours", d))
-							if a {
-								services.Notify("Price Change Alert", n)
-							}
+			go func() {
+				for {
+					pair, _ := s.Get()
+					utils.Post(c1, "bundles", "")
+					utils.Post(c2, "swaps", pair)
+					time.Sleep(time.Second * 2)
+				}
+			}()
+			go func() {
+				for {
+					select {
+					case msg1 := <-c1:
+						json.Unmarshal([]byte(msg1), &eth)
+						n, p, c, d, a := services.SwapsInfo(swaps)
+						label.SetText(n)
+						price.SetText(fmt.Sprintf("%f", p))
+						change.SetText(fmt.Sprintf("%f", c))
+						duration.SetText(fmt.Sprintf("%f hours", d))
+						if a {
+							services.Notify("Price Change Alert", n)
+						}
+					case msg2 := <-c2:
+						json.Unmarshal([]byte(msg2), &swaps)
+						n, p, c, d, a := services.SwapsInfo(swaps)
+						label.SetText(n)
+						price.SetText(fmt.Sprintf("%f", p))
+						change.SetText(fmt.Sprintf("%f", c))
+						duration.SetText(fmt.Sprintf("%f hours", d))
+						if a {
+							services.Notify("Price Change Alert", n)
 						}
 					}
-				}()
-			}
+				}
+			}()
 		})
+
 	listPanel := container.NewBorder(nil, append, nil, nil, list)
 	return container.NewGridWithColumns(1, listPanel)
-}
-
-func newFormWithData(data binding.DataMap) *widget.Form {
-	keys := data.Keys()
-	items := make([]*widget.FormItem, len(keys))
-	for i, k := range keys {
-		data, err := data.GetItem(k)
-		if err != nil {
-			items[i] = widget.NewFormItem(k, widget.NewLabel(err.Error()))
-		}
-		items[i] = widget.NewFormItem(k, createBoundItem(data))
-	}
-
-	return widget.NewForm(items...)
-}
-
-func createBoundItem(v binding.DataItem) fyne.CanvasObject {
-	switch val := v.(type) {
-	case binding.Bool:
-		return widget.NewCheckWithData("", val)
-	case binding.Float:
-		s := widget.NewSliderWithData(0, 1, val)
-		s.Step = 0.01
-		return s
-	case binding.Int:
-		return widget.NewEntryWithData(binding.IntToString(val))
-	case binding.String:
-		return widget.NewEntryWithData(val)
-	default:
-		return widget.NewLabel("")
-	}
 }
