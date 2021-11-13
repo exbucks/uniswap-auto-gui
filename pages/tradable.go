@@ -70,7 +70,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 					dex.SetURL(parseURL(url))
 
 					if a {
-						services.Notify("Price Change Alert", n)
+						services.Notify("Price Change Alert", n, url)
 					}
 				}
 			}()
