@@ -14,7 +14,7 @@ import (
 
 func stableScreen(_ fyne.Window) fyne.CanvasObject {
 	table := widget.NewTable(
-		func() (int, int) { return 500, 150 },
+		func() (int, int) { return 100, 10 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("Cell 000, 000")
 		},
