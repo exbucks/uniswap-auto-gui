@@ -31,7 +31,6 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 	button := widget.NewButton("Find", func() {
 		fmt.Println("Test!")
 	})
-	// panel := container.NewVBox(button, container.NewGridWithColumns(1, table))
 
 	return container.NewBorder(button, nil, nil, nil, table)
 }
