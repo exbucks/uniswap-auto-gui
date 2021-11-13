@@ -30,7 +30,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			leftPane := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewLabel("token"), widget.NewLabel("address"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
+			leftPane := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 			return container.NewBorder(nil, nil, leftPane, widget.NewButton("+", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
@@ -39,13 +39,11 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 			dex := lc.Objects[0].(*widget.Hyperlink)
 
 			f := item.(binding.String)
-			text := lc.Objects[1].(*widget.Label)
-			text.Bind(f)
 
-			label := lc.Objects[2].(*widget.Label)
-			price := lc.Objects[3].(*widget.Label)
-			change := lc.Objects[4].(*widget.Label)
-			duration := lc.Objects[5].(*widget.Label)
+			label := lc.Objects[1].(*widget.Label)
+			price := lc.Objects[2].(*widget.Label)
+			change := lc.Objects[3].(*widget.Label)
+			duration := lc.Objects[4].(*widget.Label)
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
@@ -62,7 +60,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 					json.Unmarshal([]byte(msg), &swaps)
 					n, p, c, d, a := services.SwapsInfo(swaps, 0.1)
 					label.SetText(n)
-					price.SetText(fmt.Sprintf("%f", p))
+					price.SetText(fmt.Sprintf("$%f", p))
 					change.SetText(fmt.Sprintf("%f", c))
 					duration.SetText(fmt.Sprintf("%f hours", d))
 
