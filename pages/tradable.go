@@ -38,10 +38,28 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 			text := obj.(*fyne.Container).Objects[0].(*widget.Label)
 			text.Bind(f)
 
+			label := obj.(*fyne.Container).Objects[1].(*widget.Label)
+
 			btn := obj.(*fyne.Container).Objects[2].(*widget.Button)
 			btn.OnTapped = func() {
 				fmt.Println("Ok!")
 			}
+
+			go func() {
+				for {
+					var swaps utils.Swaps
+					c1 := make(chan string, 1)
+					pair, _ := f.Get()
+					utils.Post(c1, "swaps", pair)
+					msg := <-c1
+					json.Unmarshal([]byte(msg), &swaps)
+					n, _, _, _, a := services.SwapsInfo(swaps)
+					label.SetText(n)
+					if a {
+						services.Notify("Price Change Alert", n)
+					}
+				}
+			}()
 		})
 
 	return container.NewBorder(find, nil, nil, nil, list)
