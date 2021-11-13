@@ -2,14 +2,16 @@ package services
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/uniswap-auto-gui/utils"
 )
 
-func SwapsInfo(swaps utils.Swaps) (name string, price float64, change float64) {
+func SwapsInfo(swaps utils.Swaps) (name string, price float64, change float64, duration float64) {
 	name = tokenName(swaps)
 	price, change = priceChanges(swaps)
-	return name, price, change
+	_, _, duration = periodOfSwaps(swaps)
+	return name, price, change, duration
 }
 
 func tokenName(swaps utils.Swaps) (name string) {
@@ -54,4 +56,17 @@ func priceOfSwap(swap utils.Swap) (price float64, target string) {
 
 	price = amountUSD / amountToken
 	return price, target
+}
+
+func periodOfSwaps(swaps utils.Swaps) (first time.Time, last time.Time, period float64) {
+	var duration float64
+	if swaps.Data.Swaps != nil {
+		_first, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
+		_last, _ := strconv.ParseInt(swaps.Data.Swaps[len(swaps.Data.Swaps)-1].Timestamp, 10, 64)
+		first = time.Unix(_first, 0)
+		last = time.Unix(_last, 0)
+		_period := first.Sub(last)
+		duration = _period.Hours()
+	}
+	return first, last, duration
 }

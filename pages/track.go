@@ -3,7 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -23,7 +22,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewButton("Track", nil))
+			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"), widget.NewButton("Track", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			s := item.(binding.String)
@@ -33,8 +32,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			label := obj.(*fyne.Container).Objects[1].(*widget.Label)
 			price := obj.(*fyne.Container).Objects[2].(*widget.Label)
 			change := obj.(*fyne.Container).Objects[3].(*widget.Label)
+			duration := obj.(*fyne.Container).Objects[4].(*widget.Label)
 
-			btn := obj.(*fyne.Container).Objects[4].(*widget.Button)
+			btn := obj.(*fyne.Container).Objects[5].(*widget.Button)
 			btn.OnTapped = func() {
 				var eth utils.Crypto
 				var swaps utils.Swaps
@@ -54,16 +54,18 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						select {
 						case msg1 := <-c1:
 							json.Unmarshal([]byte(msg1), &eth)
-							n, p, c := services.SwapsInfo(swaps)
+							n, p, c, d := services.SwapsInfo(swaps)
 							label.SetText(n)
 							price.SetText(fmt.Sprintf("%f", p))
 							change.SetText(fmt.Sprintf("%f", c))
+							duration.SetText(fmt.Sprintf("%f hours", d))
 						case msg2 := <-c2:
 							json.Unmarshal([]byte(msg2), &swaps)
-							n, p, c := services.SwapsInfo(swaps)
+							n, p, c, d := services.SwapsInfo(swaps)
 							label.SetText(n)
 							price.SetText(fmt.Sprintf("%f", p))
 							change.SetText(fmt.Sprintf("%f", c))
+							duration.SetText(fmt.Sprintf("%f hours", d))
 						}
 					}
 				}()
@@ -102,37 +104,4 @@ func createBoundItem(v binding.DataItem) fyne.CanvasObject {
 	default:
 		return widget.NewLabel("")
 	}
-}
-
-func trackSwap(pings <-chan string, price binding.Float) {
-	msg := <-pings
-	var swaps utils.Swaps
-	json.Unmarshal([]byte(msg), &swaps)
-
-	min, max, minTarget, maxTarget, minTime, maxTime := services.MinAndMax(swaps)
-	fmt.Println("Min price: ", min, minTarget, minTime)
-	fmt.Println("Max price: ", max, maxTarget, maxTime)
-
-	last := services.LastPrice(swaps)
-	_ = price.Set(last)
-	fmt.Println("Last price: ", last)
-
-	ts, tl, period := services.PeriodOfSwaps(swaps)
-	fmt.Println("Timeframe of 100 swaps: ", period)
-	fmt.Println("Start and End time of the above time frame: ", ts, tl)
-	if (max-min)/last > 0.5 {
-		fmt.Println("$$$$$ This is a tradable token! $$$$$")
-	}
-}
-
-func trackPairs(pings <-chan string) {
-	msg := <-pings
-	var pairs utils.Pairs
-
-	json.Unmarshal([]byte(msg), &pairs)
-
-	var wg sync.WaitGroup
-	wg.Add(len(pairs.Data.Pairs))
-	go services.TradableTokens(&wg, pairs)
-	wg.Wait()
 }
