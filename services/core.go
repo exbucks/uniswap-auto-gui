@@ -19,24 +19,6 @@ func showNotification(title string, message string) {
 	note.Push()
 }
 
-func priceOfSwap(swap utils.Swap) (price float64, target string) {
-	amountUSD, _ := strconv.ParseFloat(swap.AmountUSD, 32)
-	amountToken, _ := strconv.ParseFloat(swap.Amount0Out, 32)
-	price, _ = strconv.ParseFloat(swap.AmountUSD, 32)
-	if swap.Amount0In == "0" && swap.Amount1Out == "0" {
-		amountToken, _ = strconv.ParseFloat(swap.Amount0Out, 32)
-		target = "BUY"
-	} else if swap.Amount0Out == "0" && swap.Amount1In == "0" {
-		amountToken, _ = strconv.ParseFloat(swap.Amount1Out, 32)
-		target = "SELL"
-	} else if swap.Amount0In != "0" && swap.Amount0Out != "0" {
-		amountToken, _ = strconv.ParseFloat(swap.Amount0Out, 32)
-		target = "BUY"
-	}
-	price = amountUSD / amountToken
-	return price, target
-}
-
 func printInfo(id string, status string, min float64, max float64, minTarget string, maxTarget string, minTime time.Time, maxTime time.Time, period time.Duration) {
 	fmt.Println()
 	fmt.Println("Token ID: ", id)

@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/uniswap-auto-gui/utils"
@@ -40,7 +39,29 @@ func priceChanges(eth utils.Crypto, swaps utils.Swaps) (price float64, change fl
 		}
 		price = unit * firstAmount
 		change = unit * (firstAmount - lastAmount)
-		fmt.Println("######:   ", firstAmount, lastAmount, len(swaps.Data.Swaps))
 	}
 	return price, change
+}
+
+func priceOfSwap(swap utils.Swap) (price float64, target string) {
+	amountUSD, _ := strconv.ParseFloat(swap.AmountUSD, 32)
+	amountToken, _ := strconv.ParseFloat(swap.Amount0Out, 32)
+
+	if swap.Pair.Token0.Symbol == "WETH" {
+		if swap.Amount0In == "0" && swap.Amount1Out == "0" {
+			amountToken, _ = strconv.ParseFloat(swap.Amount0Out, 32)
+			target = "BUY"
+		} else if swap.Amount0Out == "0" && swap.Amount1In == "0" {
+			amountToken, _ = strconv.ParseFloat(swap.Amount1Out, 32)
+			target = "SELL"
+		} else if swap.Amount0In != "0" && swap.Amount0Out != "0" {
+			amountToken, _ = strconv.ParseFloat(swap.Amount0Out, 32)
+			target = "BUY"
+		}
+	} else {
+
+	}
+
+	price = amountUSD / amountToken
+	return price, target
 }
