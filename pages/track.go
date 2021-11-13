@@ -23,19 +23,17 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("Price x"), widget.NewButton("Track", nil))
+			return container.NewHBox(widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewButton("Track", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			s := item.(binding.String)
 			address := obj.(*fyne.Container).Objects[0].(*widget.Label)
 			address.Bind(s)
 
-			f := binding.NewFloat()
-			f.Set(0.1)
-			price := obj.(*fyne.Container).Objects[1].(*widget.Label)
-			price.Bind(binding.FloatToStringWithFormat(f, "Price %f"))
+			label := obj.(*fyne.Container).Objects[1].(*widget.Label)
+			price := obj.(*fyne.Container).Objects[2].(*widget.Label)
 
-			btn := obj.(*fyne.Container).Objects[2].(*widget.Button)
+			btn := obj.(*fyne.Container).Objects[3].(*widget.Button)
 			btn.OnTapped = func() {
 				var eth utils.Crypto
 				var swaps utils.Swaps
@@ -55,13 +53,15 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						select {
 						case msg1 := <-c1:
 							json.Unmarshal([]byte(msg1), &eth)
-							_, p := services.SwapsInfo(eth, swaps)
-							f.Set(p)
+							n, p := services.SwapsInfo(eth, swaps)
+							label.SetText(n)
+							price.SetText(fmt.Sprintf("%f", p))
 							// trackSwap(c2, f)
 						case msg2 := <-c2:
 							json.Unmarshal([]byte(msg2), &swaps)
-							_, p := services.SwapsInfo(eth, swaps)
-							f.Set(p)
+							n, p := services.SwapsInfo(eth, swaps)
+							label.SetText(n)
+							price.SetText(fmt.Sprintf("%f", p))
 							// trackSwap(c2, f)
 						}
 					}
