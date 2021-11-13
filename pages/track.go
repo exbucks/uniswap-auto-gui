@@ -36,23 +36,20 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://github.com/hirokimoto")), widget.NewLabel("address"), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
+			return container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://github.com/hirokimoto")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
-
 			s := item.(binding.String)
-			address := obj.(*fyne.Container).Objects[1].(*widget.Label)
-			address.Bind(s)
 
 			dex := obj.(*fyne.Container).Objects[0].(*widget.Hyperlink)
 			_url, _ := s.Get()
 			url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", _url)
 			dex.SetURL(parseURL(url))
 
-			label := obj.(*fyne.Container).Objects[2].(*widget.Label)
-			price := obj.(*fyne.Container).Objects[3].(*widget.Label)
-			change := obj.(*fyne.Container).Objects[4].(*widget.Label)
-			duration := obj.(*fyne.Container).Objects[5].(*widget.Label)
+			label := obj.(*fyne.Container).Objects[1].(*widget.Label)
+			price := obj.(*fyne.Container).Objects[2].(*widget.Label)
+			change := obj.(*fyne.Container).Objects[3].(*widget.Label)
+			duration := obj.(*fyne.Container).Objects[4].(*widget.Label)
 
 			var eth utils.Crypto
 			var swaps utils.Swaps
@@ -88,5 +85,5 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		})
 
 	listPanel := container.NewBorder(floats, control, nil, nil, list)
-	return container.NewGridWithColumns(1, listPanel)
+	return container.NewGridWithColumns(2, listPanel)
 }
