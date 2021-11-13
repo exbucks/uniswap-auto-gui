@@ -12,7 +12,7 @@ import (
 	"github.com/uniswap-auto-gui/utils"
 )
 
-func showNotification(title string, message string) {
+func Notify(title string, message string) {
 	note := gosxnotifier.NewNotification(message)
 	note.Title = title
 	note.Sound = gosxnotifier.Default
@@ -41,10 +41,8 @@ func findToken(pings <-chan string, id string) {
 
 		if gap < time.Duration(3*time.Hour) {
 			if (max-min)/last > 0.1 && period < time.Duration(6*time.Hour) {
-				showNotification("Tradable", id)
 				printInfo(id, "Tradable", min, max, minTarget, maxTarget, minTime, maxTime, period)
 			} else if (max-min)/last < 0.1 && period > time.Duration(24*time.Hour) {
-				showNotification("Stable", id)
 				printInfo(id, "Stable", min, max, minTarget, maxTarget, minTime, maxTime, period)
 			} else {
 				fmt.Print(".")
