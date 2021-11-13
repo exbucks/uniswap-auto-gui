@@ -54,13 +54,13 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						select {
 						case msg1 := <-c1:
 							json.Unmarshal([]byte(msg1), &eth)
-							n, p, c := services.SwapsInfo(eth, swaps)
+							n, p, c := services.SwapsInfo(swaps)
 							label.SetText(n)
 							price.SetText(fmt.Sprintf("%f", p))
 							change.SetText(fmt.Sprintf("%f", c))
 						case msg2 := <-c2:
 							json.Unmarshal([]byte(msg2), &swaps)
-							n, p, c := services.SwapsInfo(eth, swaps)
+							n, p, c := services.SwapsInfo(swaps)
 							label.SetText(n)
 							price.SetText(fmt.Sprintf("%f", p))
 							change.SetText(fmt.Sprintf("%f", c))
