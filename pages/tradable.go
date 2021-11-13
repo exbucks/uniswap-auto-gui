@@ -30,7 +30,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewBorder(nil, nil, nil, widget.NewButton("+", nil),
+			return container.NewBorder(nil, nil, widget.NewLabel("address"), widget.NewButton("+", nil),
 				widget.NewLabel("item x.y"))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
@@ -38,7 +38,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 			text := obj.(*fyne.Container).Objects[0].(*widget.Label)
 			text.Bind(f)
 
-			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
+			btn := obj.(*fyne.Container).Objects[2].(*widget.Button)
 			btn.OnTapped = func() {
 				fmt.Println("Ok!")
 			}
