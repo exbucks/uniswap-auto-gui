@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -13,8 +14,11 @@ import (
 )
 
 func stableScreen(_ fyne.Window) fyne.CanvasObject {
+	c1 := make(chan string)
+	c2 := make(chan string)
+
 	table := widget.NewTable(
-		func() (int, int) { return 100, 10 },
+		func() (int, int) { return 100, 7 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("Cell 000, 000")
 		},
@@ -35,18 +39,27 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 	button := widget.NewButton("Find", func() {
 		go func() {
 			for {
-				c1 := make(chan string)
-				go utils.Post(c1, "pairs", "")
-				trackPairs(c1)
+				go utils.Post(c2, "pairs", "")
+				time.Sleep(time.Minute * 20)
 			}
 		}()
 	})
 
+	go func() {
+		for {
+			select {
+			case msg1 := <-c1:
+				fmt.Println("Current token: ", msg1)
+			case msg2 := <-c2:
+				trackPairs(msg2)
+			}
+		}
+	}()
+
 	return container.NewBorder(button, nil, nil, nil, table)
 }
 
-func trackPairs(pings <-chan string) {
-	msg := <-pings
+func trackPairs(msg string) {
 	var pairs utils.Pairs
 
 	json.Unmarshal([]byte(msg), &pairs)
