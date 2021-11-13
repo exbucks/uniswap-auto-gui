@@ -1,17 +1,23 @@
 package pages
 
 import (
+	"encoding/json"
+	"fmt"
+	"sync"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
+	"github.com/uniswap-auto-gui/services"
+	"github.com/uniswap-auto-gui/utils"
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
-	dataList := binding.BindStringList(&[]string{"0x295b42684f90c77da7ea46336001010f2791ec8c", "0xf8e9f10c22840b613cda05a0c5fdb59a4d6cd7ef", "0xe9cb6838902ccf711f16a9ea5a1170f8e9853c02"})
+	dataList := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
 	append := widget.NewButton("Append", func() {
-		dataList.Append("0x295b42684f90c77da7ea46336001010f2791ec8c")
+		dataList.Append("0x7a99822968410431edd1ee75dab78866e31caf39")
 	})
 
 	list := widget.NewListWithData(dataList,
@@ -30,8 +36,14 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 			btn := obj.(*fyne.Container).Objects[3].(*widget.Button)
 			btn.OnTapped = func() {
-				// val, _ := f.Get()
-				// _ = f.Set(val + 1)
+				go func() {
+					for {
+						pair, _ := s.Get()
+						c3 := make(chan string)
+						go utils.Post(c3, "swaps", pair)
+						trackSwap(c3, f)
+					}
+				}()
 			}
 		})
 	listPanel := container.NewBorder(nil, append, nil, nil, list)
@@ -67,4 +79,37 @@ func createBoundItem(v binding.DataItem) fyne.CanvasObject {
 	default:
 		return widget.NewLabel("")
 	}
+}
+
+func trackSwap(pings <-chan string, price binding.Float) {
+	msg := <-pings
+	var swaps utils.Swaps
+	json.Unmarshal([]byte(msg), &swaps)
+
+	min, max, minTarget, maxTarget, minTime, maxTime := services.MinAndMax(swaps)
+	fmt.Println("Min price: ", min, minTarget, minTime)
+	fmt.Println("Max price: ", max, maxTarget, maxTime)
+
+	last := services.LastPrice(swaps)
+	_ = price.Set(last)
+	fmt.Println("Last price: ", last)
+
+	ts, tl, period := services.PeriodOfSwaps(swaps)
+	fmt.Println("Timeframe of 100 swaps: ", period)
+	fmt.Println("Start and End time of the above time frame: ", ts, tl)
+	if (max-min)/last > 0.5 {
+		fmt.Println("$$$$$ This is a tradable token! $$$$$")
+	}
+}
+
+func trackPairs(pings <-chan string) {
+	msg := <-pings
+	var pairs utils.Pairs
+
+	json.Unmarshal([]byte(msg), &pairs)
+
+	var wg sync.WaitGroup
+	wg.Add(len(pairs.Data.Pairs))
+	go services.TradableTokens(&wg, pairs)
+	wg.Wait()
 }
