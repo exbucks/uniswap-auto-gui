@@ -2,6 +2,7 @@ package pages
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 
@@ -14,9 +15,9 @@ import (
 )
 
 func tradableScreen(_ fyne.Window) fyne.CanvasObject {
-	dataList := binding.BindFloatList(&[]float64{0.1, 0.2, 0.3})
+	dataList := binding.BindStringList(&[]string{"", ""})
 
-	button := widget.NewButton("Append", func() {
+	find := widget.NewButton("Find", func() {
 		// dataList.Append(float64(dataList.Length()+1) / 10)
 
 		go func() {
@@ -35,18 +36,17 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 				widget.NewLabel("item x.y"))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
-			f := item.(binding.Float)
+			f := item.(binding.String)
 			text := obj.(*fyne.Container).Objects[0].(*widget.Label)
-			text.Bind(binding.FloatToStringWithFormat(f, "item %0.1f"))
+			text.Bind(f)
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
-				val, _ := f.Get()
-				_ = f.Set(val + 1)
+				fmt.Println("Ok!")
 			}
 		})
 
-	return container.NewBorder(button, nil, nil, nil, list)
+	return container.NewBorder(find, nil, nil, nil, list)
 }
 
 func trackTradables(pings <-chan string) {
