@@ -1,11 +1,15 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
+	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/uniswap-auto-gui/services"
+	"github.com/uniswap-auto-gui/utils"
 )
 
 func stableScreen(_ fyne.Window) fyne.CanvasObject {
@@ -29,8 +33,26 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(1, 102)
 
 	button := widget.NewButton("Find", func() {
-		fmt.Println("Test!")
+		go func() {
+			for {
+				c1 := make(chan string)
+				go utils.Post(c1, "pairs", "")
+				trackPairs(c1)
+			}
+		}()
 	})
 
 	return container.NewBorder(button, nil, nil, nil, table)
+}
+
+func trackPairs(pings <-chan string) {
+	msg := <-pings
+	var pairs utils.Pairs
+
+	json.Unmarshal([]byte(msg), &pairs)
+
+	var wg sync.WaitGroup
+	wg.Add(len(pairs.Data.Pairs))
+	go services.StableTokens(&wg, pairs)
+	wg.Wait()
 }

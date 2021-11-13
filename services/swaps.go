@@ -83,3 +83,37 @@ func priceAlert(swaps utils.Swaps, change float64) (state bool) {
 	}
 	return state
 }
+
+func minMax(swaps utils.Swaps) (
+	min float64,
+	max float64,
+	minTarget string,
+	maxTarget string,
+	minTime time.Time,
+	maxTime time.Time,
+) {
+	min = 0
+	max = 0
+	var _min int64
+	var _max int64
+	for _, item := range swaps.Data.Swaps {
+		price, target := priceOfSwap(item)
+		minTarget = target
+		maxTarget = target
+		if min == 0 || max == 0 {
+			min = price
+			max = price
+		}
+		if price < min {
+			min = price
+			_min, _ = strconv.ParseInt(item.Timestamp, 10, 64)
+		}
+		if price > max {
+			max = price
+			_max, _ = strconv.ParseInt(item.Timestamp, 10, 64)
+		}
+	}
+	minTime = time.Unix(_min, 0)
+	maxTime = time.Unix(_max, 0)
+	return min, max, minTarget, maxTarget, minTime, maxTime
+}
