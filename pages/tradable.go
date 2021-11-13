@@ -15,16 +15,14 @@ import (
 )
 
 func tradableScreen(_ fyne.Window) fyne.CanvasObject {
-	dataList := binding.BindStringList(&[]string{"", ""})
+	dataList := binding.BindStringList(&[]string{})
 
 	find := widget.NewButton("Find", func() {
-		// dataList.Append(float64(dataList.Length()+1) / 10)
-
 		go func() {
 			for {
 				c1 := make(chan string, 1)
 				go utils.Post(c1, "pairs", "")
-				trackTradables(c1)
+				trackTradables(c1, dataList)
 				time.Sleep(time.Minute * 20)
 			}
 		}()
@@ -49,7 +47,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 	return container.NewBorder(find, nil, nil, nil, list)
 }
 
-func trackTradables(pings <-chan string) {
+func trackTradables(pings <-chan string, list binding.ExternalStringList) {
 	msg := <-pings
 	var pairs utils.Pairs
 
@@ -57,6 +55,6 @@ func trackTradables(pings <-chan string) {
 
 	var wg sync.WaitGroup
 	wg.Add(len(pairs.Data.Pairs))
-	go services.TradableTokens(&wg, pairs)
+	go services.TradableTokens(&wg, pairs, list)
 	wg.Wait()
 }

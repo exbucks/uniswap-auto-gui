@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"fyne.io/fyne/v2/data/binding"
 	"github.com/uniswap-auto-gui/utils"
 )
 
@@ -19,11 +20,12 @@ func StableTokens(wg *sync.WaitGroup, pairs utils.Pairs) {
 	}
 }
 
-func TradableTokens(wg *sync.WaitGroup, pairs utils.Pairs) {
+func TradableTokens(wg *sync.WaitGroup, pairs utils.Pairs, list binding.ExternalStringList) {
 	defer wg.Done()
 
 	for _, item := range pairs.Data.Pairs {
 		c := make(chan string, 1)
+		list.Append(item.Id)
 		fmt.Println(item.Id)
 		go utils.Post(c, "swaps", item.Id)
 		tradableToken(c, item.Id)
