@@ -50,6 +50,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
 			pairsdata.Append(name.Text)
+			services.WritePairs(pairs)
 		}
 	})
 

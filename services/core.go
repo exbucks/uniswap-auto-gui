@@ -31,7 +31,8 @@ func Alert(title string, message string) {
 }
 
 func ReadPairs() []string {
-	path := absolutePath() + "pairs.txt"
+	path := absolutePath() + "/pairs.txt"
+	fmt.Println("$$$$$$$:   ", path)
 	lines, err := readLines(path)
 	if err != nil {
 		lines = []string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"}
@@ -40,13 +41,13 @@ func ReadPairs() []string {
 }
 
 func WritePairs(lines []string) error {
-	path := absolutePath() + "pairs.txt"
+	path := absolutePath() + "/pairs.txt"
 	err := writeLines(lines, path)
 	return err
 }
 
 func absolutePath() string {
-	ex, err := os.Executable()
+	ex, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
@@ -67,6 +68,7 @@ func readLines(path string) ([]string, error) {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+	fmt.Println(lines)
 	return lines, scanner.Err()
 }
 
