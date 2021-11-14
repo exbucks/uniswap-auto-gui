@@ -66,6 +66,12 @@ func RemoveOnePair(pair string) error {
 	return err
 }
 
+func InitializePairs() {
+	path := absolutePath() + "/pairs.txt"
+	lines := []string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"}
+	writeLines(lines, path)
+}
+
 func absolutePath() string {
 	ex, err := os.Getwd()
 	if err != nil {

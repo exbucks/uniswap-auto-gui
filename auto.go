@@ -13,6 +13,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/uniswap-auto-gui/pages"
+	"github.com/uniswap-auto-gui/services"
 )
 
 const preferenceCurrentPage = "currentPage"
@@ -119,6 +120,7 @@ func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
 		}, w)
 	})
 	findItem := fyne.NewMenuItem("Find", func() { fmt.Println("Menu Find") })
+	pairsItem := fyne.NewMenuItem("Pairs", func() { services.InitializePairs() })
 
 	helpMenu := fyne.NewMenu("Help",
 		fyne.NewMenuItem("Documentation", func() {
@@ -142,7 +144,7 @@ func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
 	}
 	return fyne.NewMainMenu(
 		file,
-		fyne.NewMenu("Edit", cutItem, copyItem, pasteItem, fyne.NewMenuItemSeparator(), findItem),
+		fyne.NewMenu("Edit", cutItem, copyItem, pasteItem, fyne.NewMenuItemSeparator(), findItem, pairsItem),
 		helpMenu,
 	)
 }
