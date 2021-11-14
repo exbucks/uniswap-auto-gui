@@ -27,7 +27,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	ac := false
 	acdata := binding.BindBool(&ac)
-	alertChange := widget.NewCheckWithData("Alert changes!", acdata)
+	alertAnyChange := widget.NewCheckWithData("Alert any changes!", acdata)
 
 	pairs := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
@@ -95,6 +95,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					alert, _ := acdata.Get()
 					if alert && pair == activePair && oldPrice != p {
 						services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
+						oldPrice = p
 					}
 					time.Sleep(time.Second * 5)
 				}
@@ -116,7 +117,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		}()
 	}
 
-	settings := container.NewVBox(alertInterval, alertChange)
+	settings := container.NewVBox(alertInterval, alertAnyChange)
 	listPanel := container.NewBorder(settings, control, nil, nil, list)
 	return container.NewHSplit(listPanel, trades)
 }
