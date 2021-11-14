@@ -15,9 +15,22 @@ func SwapsInfo(swaps utils.Swaps, ps float64) (name string, price float64, chang
 	return name, price, change, duration, alert
 }
 
-func SwapInfo(swap utils.Swap) (price float64, target string) {
+func SwapInfo(swap utils.Swap) (price float64, target string, amount string, amount1 string, amount2 string) {
 	price, target = priceOfSwap(swap)
-	return price, target
+	amount = "$" + swap.AmountUSD
+	if swap.Amount0In == "0" {
+		amount1 = swap.Amount0Out
+	} else {
+		amount1 = swap.Amount0In
+	}
+	amount1 = amount1 + " " + swap.Pair.Token0.Symbol
+	if swap.Amount1In == "0" {
+		amount2 = swap.Amount1Out
+	} else {
+		amount2 = swap.Amount1In
+	}
+	amount2 = amount2 + " " + swap.Pair.Token1.Symbol
+	return price, target, amount, amount1, amount2
 }
 
 func tokenName(swaps utils.Swaps) (name string) {
