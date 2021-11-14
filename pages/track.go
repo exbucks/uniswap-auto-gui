@@ -94,6 +94,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			change := left.Objects[3].(*widget.Label)
 			duration := left.Objects[4].(*widget.Label)
 
+			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
+			btn.OnTapped = func() {
+				services.StoreAndRemovePair(pair)
+				pairs = services.ReadPairs()
+			}
+
 			var swaps utils.Swaps
 			cc := make(chan string, 1)
 
