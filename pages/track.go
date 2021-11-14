@@ -16,6 +16,8 @@ import (
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected utils.Swaps
+	var oldPrice float64
+	var activePair string
 
 	ai := 0.1
 	aidata := binding.BindFloat(&ai)
@@ -78,7 +80,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 			go func() {
 				for {
-					pair, _ := s.Get()
 					utils.Post(cc, "swaps", pair)
 
 					msg := <-cc
@@ -92,7 +93,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						services.Notify("Price Change Alert", n, url)
 					}
 					alert, _ := acdata.Get()
-					if alert {
+					if alert && pair == activePair && oldPrice != p {
 						services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
 					}
 					time.Sleep(time.Second * 5)
@@ -104,10 +105,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		go func() {
 			for {
 				cc := make(chan string, 1)
-				pair, _ := pairs.GetValue(id)
-				utils.Post(cc, "swaps", pair)
+				activePair, _ = pairs.GetValue(id)
+				utils.Post(cc, "swaps", activePair)
 				msg := <-cc
 				json.Unmarshal([]byte(msg), &selected)
+				oldPrice, _, _, _, _ = services.SwapInfo(selected.Data.Swaps[0])
 				trades.Refresh()
 				time.Sleep(time.Second * 5)
 			}
