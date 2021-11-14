@@ -44,8 +44,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			return container.NewHBox(widget.NewIcon(theme.DocumentIcon()), widget.NewLabel("Token 0"), widget.NewLabel("Token 1"))
 		},
 		func(id widget.ListItemID, item fyne.CanvasObject) {
-			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(selected.Data.Swaps[id].Pair.Token0.Name)
-			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(selected.Data.Swaps[id].Pair.Token1.Name)
+			price, target := services.SwapInfo(selected.Data.Swaps[id])
+			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(fmt.Sprintf("%f", price))
+			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(target)
 		},
 	)
 

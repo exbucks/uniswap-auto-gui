@@ -15,6 +15,11 @@ func SwapsInfo(swaps utils.Swaps, ps float64) (name string, price float64, chang
 	return name, price, change, duration, alert
 }
 
+func SwapInfo(swap utils.Swap) (price float64, target string) {
+	price, target = priceOfSwap(swap)
+	return price, target
+}
+
 func tokenName(swaps utils.Swaps) (name string) {
 	if swaps.Data.Swaps != nil && len(swaps.Data.Swaps) > 0 {
 		if swaps.Data.Swaps[0].Pair.Token0.Symbol == "WETH" {
