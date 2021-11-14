@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -17,19 +18,25 @@ func SwapsInfo(swaps utils.Swaps, ps float64) (name string, price float64, chang
 
 func SwapInfo(swap utils.Swap) (price float64, target string, amount string, amount1 string, amount2 string) {
 	price, target = priceOfSwap(swap)
-	amount = "$" + swap.AmountUSD
+	_amount, _ := strconv.ParseFloat(swap.AmountUSD, 32)
+	amount = fmt.Sprintf("$%.2f", _amount)
+
+	_amount1 := 0.1
 	if swap.Amount0In == "0" {
-		amount1 = swap.Amount0Out
+		_amount1, _ = strconv.ParseFloat(swap.Amount0Out, 32)
 	} else {
-		amount1 = swap.Amount0In
+		_amount1, _ = strconv.ParseFloat(swap.Amount0In, 32)
 	}
-	amount1 = amount1 + " " + swap.Pair.Token0.Symbol
+	amount1 = fmt.Sprintf("%.4f %s", _amount1, swap.Pair.Token0.Symbol)
+
+	_amount2 := 0.1
 	if swap.Amount1In == "0" {
-		amount2 = swap.Amount1Out
+		_amount2, _ = strconv.ParseFloat(swap.Amount1Out, 32)
 	} else {
-		amount2 = swap.Amount1In
+		_amount2, _ = strconv.ParseFloat(swap.Amount1In, 32)
 	}
-	amount2 = amount2 + " " + swap.Pair.Token1.Symbol
+	amount2 = fmt.Sprintf("%.4f %s", _amount2, swap.Pair.Token1.Symbol)
+
 	return price, target, amount, amount1, amount2
 }
 
