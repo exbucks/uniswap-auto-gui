@@ -56,13 +56,17 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
 				if services.IsExist(pair) {
-
+					err := services.RemoveOnePair(pair)
+					if err == nil {
+						services.Alert("Uniswap Auto", fmt.Sprintf("Removed %s to pairs!", pair))
+					}
 				} else {
 					err := services.WriteOnePair(pair)
 					if err == nil {
 						services.Alert("Uniswap Auto", fmt.Sprintf("Saved %s to pairs!", pair))
 					}
 				}
+				btn.Refresh()
 			}
 
 			go func() {

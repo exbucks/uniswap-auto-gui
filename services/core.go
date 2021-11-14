@@ -60,6 +60,11 @@ func WriteOnePair(pair string) error {
 	return err
 }
 
+func RemoveOnePair(pair string) error {
+	err := removeOnePair(pair)
+	return err
+}
+
 func absolutePath() string {
 	ex, err := os.Getwd()
 	if err != nil {
