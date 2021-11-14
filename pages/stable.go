@@ -65,18 +65,20 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 					utils.Post(c1, "swaps", pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, a := services.SwapsInfo(swaps, 0.1)
+					n, p, c, d, _ := services.SwapsInfo(swaps, 0.1)
 					label.SetText(n)
 					price.SetText(money.FormatMoney(p))
 					change.SetText(money.FormatMoney(c))
 					duration.SetText(fmt.Sprintf("%.2f hours", d))
 
+					icon := "+"
+					if services.IsExist(pair) {
+						icon = "-"
+					}
+					btn.SetText(icon)
+
 					url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 					dex.SetURL(parseURL(url))
-
-					if a {
-						services.Notify("Price Change Alert", n, url)
-					}
 				}
 			}()
 		})
