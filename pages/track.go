@@ -103,17 +103,17 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					change.SetText(fmt.Sprintf("%f", c))
 					duration.SetText(fmt.Sprintf("%.2f hours", d))
 					if a {
-						services.Notify("Price Change Alert", n, url)
+						services.Notify("Alert large changes!", n, url)
 					}
 					if alertType == "Alert any changes!" {
 						if pair == activePair && oldPrice != p {
-							services.Notify("Price any changes!", fmt.Sprintf("%s %f", n, p), url)
+							services.Notify("Price any changes!", fmt.Sprintf("%s $%f  $%f", n, p, c), url)
 							oldPrice = p
 						}
 					} else {
 						if pair == activePair && oldPrice != p {
 							oldPrice = p
-							services.Notify("Price special changes!", fmt.Sprintf("%s %f", n, p), url)
+							services.Notify("Price special changes!", fmt.Sprintf("%s $%f  $%f", n, p, c), url)
 						}
 					}
 					time.Sleep(time.Second * 5)
