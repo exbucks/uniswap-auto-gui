@@ -33,12 +33,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	ascdata := binding.BindBool(&asc)
 	alertSpecialChange := widget.NewCheckWithData("Alert special changes!", ascdata)
 
-	min := 0.0
+	min := 0.3
 	mindata := binding.BindFloat(&min)
 	minLabel := widget.NewLabel("Minimum")
 	minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
 
-	max := 0.0
+	max := 0.4
 	maxdata := binding.BindFloat(&max)
 	maxLabel := widget.NewLabel("Maximum")
 	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
@@ -133,7 +133,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	minPanel := container.NewHBox(minLabel, minEntry)
 	maxPanel := container.NewHBox(maxLabel, maxEntry)
-	alertSpecialPanel := container.NewGridWithColumns(3, alertSpecialChange, minPanel, maxPanel)
+	alertSpecialPanel := container.NewHBox(alertSpecialChange, minPanel, maxPanel)
 	settings := container.NewVBox(alertInterval, alertAnyChange, alertSpecialPanel)
 	listPanel := container.NewBorder(settings, control, nil, nil, list)
 	return container.NewHSplit(listPanel, trades)
