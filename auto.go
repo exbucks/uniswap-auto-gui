@@ -61,7 +61,7 @@ func main() {
 		split.Offset = 0.2
 		w.SetContent(split)
 	}
-	w.Resize(fyne.NewSize(1200, 460))
+	w.Resize(fyne.NewSize(1200, 600))
 	w.ShowAndRun()
 }
 
