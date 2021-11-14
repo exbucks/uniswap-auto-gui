@@ -20,7 +20,11 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	dataList := binding.BindStringList(&[]string{})
 
+	infProgress := widget.NewProgressBarInfinite()
+	infProgress.Stop()
+
 	find := widget.NewButton("Find Tradable Coins", func() {
+		infProgress.Start()
 		go func() {
 			for {
 				c1 := make(chan string, 1)
@@ -73,7 +77,8 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 			}()
 		})
 
-	return container.NewBorder(find, nil, nil, nil, list)
+	controls := container.NewVBox(find, infProgress)
+	return container.NewBorder(controls, nil, nil, nil, list)
 }
 
 func trackTradables(pings <-chan string, list binding.ExternalStringList) {
