@@ -25,9 +25,23 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	entry := widget.NewEntryWithData(binding.FloatToString(aidata))
 	alertInterval := container.NewBorder(nil, nil, label, entry)
 
-	ac := false
-	acdata := binding.BindBool(&ac)
-	alertAnyChange := widget.NewCheckWithData("Alert any changes!", acdata)
+	aac := false
+	aacdata := binding.BindBool(&aac)
+	alertAnyChange := widget.NewCheckWithData("Alert any changes!", aacdata)
+
+	asc := false
+	ascdata := binding.BindBool(&asc)
+	alertSpecialChange := widget.NewCheckWithData("Alert special changes!", ascdata)
+
+	min := 0.0
+	mindata := binding.BindFloat(&min)
+	minLabel := widget.NewLabel("Minimum")
+	minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
+
+	max := 0.0
+	maxdata := binding.BindFloat(&max)
+	maxLabel := widget.NewLabel("Maximum")
+	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
 
 	pairs := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
@@ -92,7 +106,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					if a {
 						services.Notify("Price Change Alert", n, url)
 					}
-					alert, _ := acdata.Get()
+					alert, _ := aacdata.Get()
 					if alert && pair == activePair && oldPrice != p {
 						services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
 						oldPrice = p
@@ -117,7 +131,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		}()
 	}
 
-	settings := container.NewVBox(alertInterval, alertAnyChange)
+	minPanel := container.NewHBox(minLabel, minEntry)
+	maxPanel := container.NewHBox(maxLabel, maxEntry)
+	alertSpecialPanel := container.NewGridWithColumns(3, alertSpecialChange, minPanel, maxPanel)
+	settings := container.NewVBox(alertInterval, alertAnyChange, alertSpecialPanel)
 	listPanel := container.NewBorder(settings, control, nil, nil, list)
 	return container.NewHSplit(listPanel, trades)
 }
