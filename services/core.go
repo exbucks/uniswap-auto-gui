@@ -33,8 +33,9 @@ func Alert(title string, message string) {
 func ReadPairs() []string {
 	path := absolutePath() + "/pairs.txt"
 	lines, err := readLines(path)
-	if err != nil {
+	if err != nil || len(lines) == 0 {
 		lines = []string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"}
+		writeLines(lines, path)
 	}
 	return lines
 }
