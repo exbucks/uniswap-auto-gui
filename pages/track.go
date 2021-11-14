@@ -100,12 +100,14 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	list.OnSelected = func(id widget.ListItemID) {
 		go func() {
-			cc := make(chan string, 1)
-			pair, _ := pairs.GetValue(id)
-			utils.Post(cc, "swaps", pair)
-			msg := <-cc
-			json.Unmarshal([]byte(msg), &selected)
-			trades.Refresh()
+			for {
+				cc := make(chan string, 1)
+				pair, _ := pairs.GetValue(id)
+				utils.Post(cc, "swaps", pair)
+				msg := <-cc
+				json.Unmarshal([]byte(msg), &selected)
+				trades.Refresh()
+			}
 		}()
 	}
 
