@@ -124,9 +124,11 @@ func removeOnePair(pair string) error {
 	_pairs := []string{}
 	for _, v := range pairs {
 		if v != pair {
-			_pairs = append(_pairs, pair)
+			_pairs = append(_pairs, v)
 		}
 	}
+	fmt.Println(pairs)
+	fmt.Println(_pairs)
 	err := writeLines(_pairs, path)
 	return err
 }
