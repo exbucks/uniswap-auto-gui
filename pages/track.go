@@ -100,10 +100,22 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
 					n, p, c, d, a := services.SwapsInfo(swaps, ai)
-					label.SetText(n)
-					price.SetText(fmt.Sprintf("%f", p))
-					change.SetText(fmt.Sprintf("%f", c))
-					duration.SetText(fmt.Sprintf("%.2f hours", d))
+
+					if label.Text != n {
+						label.SetText(n)
+					}
+					_price := fmt.Sprintf("$%f", p)
+					if price.Text != _price {
+						price.SetText(_price)
+					}
+					_change := fmt.Sprintf("$%f", c)
+					if change.Text != _change {
+						change.SetText(_change)
+					}
+					_duration := fmt.Sprintf("%.2f hours", d)
+					if duration.Text != _duration {
+						duration.SetText(_duration)
+					}
 
 					if activePair == pair {
 						selected = swaps
