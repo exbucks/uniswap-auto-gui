@@ -104,6 +104,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					price.SetText(fmt.Sprintf("%f", p))
 					change.SetText(fmt.Sprintf("%f", c))
 					duration.SetText(fmt.Sprintf("%.2f hours", d))
+
+					if activePair == pair {
+						selected = swaps
+						oldPrice, _, _, _, _ = services.SwapInfo(swaps.Data.Swaps[0])
+						trades.Refresh()
+					}
 					if a {
 						services.Notify("Alert large changes!", n, url)
 					}
@@ -124,18 +130,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		})
 
 	list.OnSelected = func(id widget.ListItemID) {
-		go func() {
-			for {
-				cc := make(chan string, 1)
-				activePair, _ = pairsdata.GetValue(id)
-				utils.Post(cc, "swaps", activePair)
-				msg := <-cc
-				json.Unmarshal([]byte(msg), &selected)
-				oldPrice, _, _, _, _ = services.SwapInfo(selected.Data.Swaps[0])
-				trades.Refresh()
-				time.Sleep(time.Second * 5)
-			}
-		}()
+		activePair, _ = pairsdata.GetValue(id)
 	}
 
 	minPanel := container.NewHBox(minLabel, minEntry)
