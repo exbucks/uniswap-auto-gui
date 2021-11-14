@@ -20,7 +20,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	data := binding.BindFloat(&pc)
 	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(data, "Price change alert percent (*100): %f"))
 	entry := widget.NewEntryWithData(binding.FloatToString(data))
-	floats := container.NewGridWithColumns(2, label, entry)
+	floats := container.NewBorder(nil, nil, label, entry)
 
 	dataList := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
@@ -29,8 +29,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
 			dataList.Append(name.Text)
-		} else {
-			services.Notify("test", "test", "https://www.github.com/hirokimoto")
 		}
 	})
 
