@@ -18,20 +18,13 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected utils.Swaps
 	var oldPrice float64
 	var activePair string
+	alertType := "Alert any changes!"
 
 	ai := 0.1
 	aidata := binding.BindFloat(&ai)
 	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(aidata, "Price change percent (*100): %f"))
 	entry := widget.NewEntryWithData(binding.FloatToString(aidata))
 	alertInterval := container.NewBorder(nil, nil, label, entry)
-
-	aac := false
-	aacdata := binding.BindBool(&aac)
-	alertAnyChange := widget.NewCheckWithData("Alert any changes!", aacdata)
-
-	asc := false
-	ascdata := binding.BindBool(&asc)
-	alertSpecialChange := widget.NewCheckWithData("Alert special changes!", ascdata)
 
 	min := 0.3
 	mindata := binding.BindFloat(&min)
@@ -42,6 +35,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	maxdata := binding.BindFloat(&max)
 	maxLabel := widget.NewLabel("Maximum")
 	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
+
+	alerts := widget.NewRadioGroup([]string{"Alert any changes!", "Alert special changes!"}, func(s string) {
+		alertType = s
+	})
+	alerts.Horizontal = true
+	alerts.SetSelected("Alert any changes!")
 
 	pairs := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
@@ -106,10 +105,16 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					if a {
 						services.Notify("Price Change Alert", n, url)
 					}
-					alert, _ := aacdata.Get()
-					if alert && pair == activePair && oldPrice != p {
-						services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
-						oldPrice = p
+					if alertType == "Alert any changes!" {
+						if pair == activePair {
+							services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
+							oldPrice = p
+						}
+					} else {
+						if pair == activePair && oldPrice != p {
+							oldPrice = p
+							services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
+						}
 					}
 					time.Sleep(time.Second * 5)
 				}
@@ -133,8 +138,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	minPanel := container.NewHBox(minLabel, minEntry)
 	maxPanel := container.NewHBox(maxLabel, maxEntry)
-	alertSpecialPanel := container.NewHBox(alertSpecialChange, minPanel, maxPanel)
-	settings := container.NewVBox(alertInterval, alertAnyChange, alertSpecialPanel)
+	alertSpecialPanel := container.NewBorder(nil, nil, minPanel, maxPanel)
+	settings := container.NewVBox(alertInterval, alerts, alertSpecialPanel)
 	listPanel := container.NewBorder(settings, control, nil, nil, list)
 	return container.NewHSplit(listPanel, trades)
 }
