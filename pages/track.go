@@ -104,5 +104,5 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	}
 
 	listPanel := container.NewBorder(floats, control, nil, nil, list)
-	return container.NewGridWithColumns(2, listPanel, trades)
+	return container.NewHSplit(listPanel, trades)
 }
