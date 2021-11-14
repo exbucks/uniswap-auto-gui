@@ -55,17 +55,7 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
-				if services.IsExist(pair) {
-					err := services.RemoveOnePair(pair)
-					if err == nil {
-						services.Alert("Removed!", pair)
-					}
-				} else {
-					err := services.WriteOnePair(pair)
-					if err == nil {
-						services.Alert("Saved!", pair)
-					}
-				}
+				services.StoreAndRemovePair(pair)
 				btn.Refresh()
 			}
 

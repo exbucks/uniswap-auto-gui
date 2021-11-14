@@ -28,6 +28,21 @@ func TradableTokens(wg *sync.WaitGroup, pairs utils.Pairs, list binding.External
 	}
 }
 
+func StoreAndRemovePair(pair string) (err error) {
+	if IsExist(pair) {
+		err = RemoveOnePair(pair)
+		if err == nil {
+			Alert("Removed!", pair)
+		}
+	} else {
+		err = WriteOnePair(pair)
+		if err == nil {
+			Alert("Saved!", pair)
+		}
+	}
+	return err
+}
+
 func stableToken(pings <-chan string, id string, list binding.ExternalStringList) {
 	var swaps utils.Swaps
 	msg := <-pings
