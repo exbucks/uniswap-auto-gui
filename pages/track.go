@@ -16,19 +16,23 @@ import (
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected utils.Swaps
 
-	pc := 0.1
-	data := binding.BindFloat(&pc)
-	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(data, "Price change alert percent (*100): %f"))
-	entry := widget.NewEntryWithData(binding.FloatToString(data))
-	floats := container.NewBorder(nil, nil, label, entry)
+	ai := 0.1
+	aidata := binding.BindFloat(&ai)
+	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(aidata, "Price change percent (*100): %f"))
+	entry := widget.NewEntryWithData(binding.FloatToString(aidata))
+	alertInterval := container.NewBorder(nil, nil, label, entry)
 
-	dataList := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
+	ac := false
+	acdata := binding.BindBool(&ac)
+	alertChange := widget.NewCheckWithData("Alert changes!", acdata)
+
+	pairs := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
 
 	name := widget.NewEntry()
 	name.SetPlaceHolder("0x7a99822968410431edd1ee75dab78866e31caf39")
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
-			dataList.Append(name.Text)
+			pairs.Append(name.Text)
 		}
 	})
 
@@ -51,7 +55,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		},
 	)
 
-	list := widget.NewListWithData(dataList,
+	list := widget.NewListWithData(pairs,
 		func() fyne.CanvasObject {
 			return container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://github.com/hirokimoto")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 		},
@@ -78,7 +82,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, a := services.SwapsInfo(swaps, pc)
+					n, p, c, d, a := services.SwapsInfo(swaps, ai)
 					label.SetText(n)
 					price.SetText(fmt.Sprintf("%f", p))
 					change.SetText(fmt.Sprintf("%f", c))
@@ -93,7 +97,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	list.OnSelected = func(id widget.ListItemID) {
 		go func() {
 			cc := make(chan string, 1)
-			pair, _ := dataList.GetValue(id)
+			pair, _ := pairs.GetValue(id)
 			utils.Post(cc, "swaps", pair)
 			msg := <-cc
 			json.Unmarshal([]byte(msg), &selected)
@@ -101,6 +105,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		}()
 	}
 
-	listPanel := container.NewBorder(floats, control, nil, nil, list)
+	settings := container.NewVBox(alertInterval, alertChange)
+	listPanel := container.NewBorder(settings, control, nil, nil, list)
 	return container.NewHSplit(listPanel, trades)
 }
