@@ -3,7 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -15,7 +14,7 @@ import (
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
-	activeIndex := 0
+	var selected utils.Swaps
 
 	pc := 0.1
 	data := binding.BindFloat(&pc)
@@ -24,7 +23,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	floats := container.NewGridWithColumns(2, label, entry)
 
 	dataList := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
-	var selectedSwaps utils.Swaps
 
 	name := widget.NewEntry()
 	name.SetPlaceHolder("0x7a99822968410431edd1ee75dab78866e31caf39")
@@ -37,6 +35,19 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	})
 
 	control := container.NewVBox(name, append)
+
+	trades := widget.NewList(
+		func() int {
+			return len(selected.Data.Swaps)
+		},
+		func() fyne.CanvasObject {
+			return container.NewHBox(widget.NewIcon(theme.DocumentIcon()), widget.NewLabel("Token 0"), widget.NewLabel("Token 1"))
+		},
+		func(id widget.ListItemID, item fyne.CanvasObject) {
+			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(selected.Data.Swaps[id].Pair.Token0.Name)
+			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(selected.Data.Swaps[id].Pair.Token1.Name)
+		},
+	)
 
 	list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
@@ -55,63 +66,38 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			change := obj.(*fyne.Container).Objects[3].(*widget.Label)
 			duration := obj.(*fyne.Container).Objects[4].(*widget.Label)
 
-			var eth utils.Crypto
 			var swaps utils.Swaps
-			c1 := make(chan string)
-			c2 := make(chan string)
+			cc := make(chan string, 1)
 
 			go func() {
 				for {
 					pair, _ := s.Get()
-					utils.Post(c1, "bundles", "")
-					utils.Post(c2, "swaps", pair)
-					time.Sleep(time.Second * 2)
-				}
-			}()
-			go func() {
-				for {
-					select {
-					case msg1 := <-c1:
-						json.Unmarshal([]byte(msg1), &eth)
-					case msg2 := <-c2:
-						json.Unmarshal([]byte(msg2), &swaps)
-						n, p, c, d, a := services.SwapsInfo(swaps, pc)
-						selectedSwaps = swaps
-						label.SetText(n)
-						price.SetText(fmt.Sprintf("%f", p))
-						change.SetText(fmt.Sprintf("%f", c))
-						duration.SetText(fmt.Sprintf("%f hours", d))
-						if a {
-							services.Notify("Price Change Alert", n, url)
-						}
-						_pair, _ := dataList.GetValue(activeIndex)
-						if pair == _pair {
-							selectedSwaps = swaps
-						}
+					utils.Post(cc, "swaps", pair)
+
+					msg := <-cc
+					json.Unmarshal([]byte(msg), &swaps)
+					n, p, c, d, a := services.SwapsInfo(swaps, pc)
+					label.SetText(n)
+					price.SetText(fmt.Sprintf("%f", p))
+					change.SetText(fmt.Sprintf("%f", c))
+					duration.SetText(fmt.Sprintf("%f hours", d))
+					if a {
+						services.Notify("Price Change Alert", n, url)
 					}
 				}
 			}()
 		})
 
 	list.OnSelected = func(id widget.ListItemID) {
-		activeIndex = id
+		go func() {
+			cc := make(chan string, 1)
+			pair, _ := dataList.GetValue(id)
+			utils.Post(cc, "swaps", pair)
+			msg := <-cc
+			json.Unmarshal([]byte(msg), &selected)
+			trades.Refresh()
+		}()
 	}
-	list.OnUnselected = func(id widget.ListItemID) {
-		fmt.Println(id)
-	}
-
-	trades := widget.NewList(
-		func() int {
-			return len(selectedSwaps.Data.Swaps)
-		},
-		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewIcon(theme.DocumentIcon()), widget.NewLabel("Token 0"), widget.NewLabel("Token 1"))
-		},
-		func(id widget.ListItemID, item fyne.CanvasObject) {
-			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(selectedSwaps.Data.Swaps[id].Pair.Token0.Name)
-			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(selectedSwaps.Data.Swaps[id].Pair.Token1.Name)
-		},
-	)
 
 	listPanel := container.NewBorder(floats, control, nil, nil, list)
 	return container.NewGridWithColumns(2, listPanel, trades)
