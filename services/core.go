@@ -55,6 +55,11 @@ func WritePairs(lines []string) error {
 	return err
 }
 
+func WriteOnePair(pair string) error {
+	err := writeOnePair(pair)
+	return err
+}
+
 func absolutePath() string {
 	ex, err := os.Getwd()
 	if err != nil {
@@ -98,5 +103,18 @@ func writeOnePair(pair string) error {
 	pairs, _ := readLines(path)
 	pairs = append(pairs, pair)
 	err := writeLines(pairs, path)
+	return err
+}
+
+func removeOnePair(pair string) error {
+	path := absolutePath() + "/pairs.txt"
+	pairs, _ := readLines(path)
+	_pairs := []string{}
+	for _, v := range pairs {
+		if v != pair {
+			_pairs = append(_pairs, pair)
+		}
+	}
+	err := writeLines(_pairs, path)
 	return err
 }

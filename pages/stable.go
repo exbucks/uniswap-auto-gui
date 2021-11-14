@@ -46,6 +46,7 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 			dex := lc.Objects[0].(*widget.Hyperlink)
 
 			f := item.(binding.String)
+			pair, _ := f.Get()
 
 			label := lc.Objects[1].(*widget.Label)
 			price := lc.Objects[2].(*widget.Label)
@@ -54,14 +55,20 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
-				fmt.Println("Ok!")
+				if services.IsExist(pair) {
+
+				} else {
+					err := services.WriteOnePair(pair)
+					if err == nil {
+						services.Alert("Uniswap Auto", fmt.Sprintf("Saved %s to pairs!", pair))
+					}
+				}
 			}
 
 			go func() {
 				for {
 					var swaps utils.Swaps
 					c1 := make(chan string, 1)
-					pair, _ := f.Get()
 					utils.Post(c1, "swaps", pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
