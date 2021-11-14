@@ -42,13 +42,14 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	alerts.Horizontal = true
 	alerts.SetSelected("Alert any changes!")
 
-	pairs := binding.BindStringList(&[]string{"0x9d9681d71142049594020bd863d34d9f48d9df58", "0x7a99822968410431edd1ee75dab78866e31caf39"})
+	pairs := services.ReadPairs()
+	pairsdata := binding.BindStringList(&pairs)
 
 	name := widget.NewEntry()
 	name.SetPlaceHolder("0x7a99822968410431edd1ee75dab78866e31caf39")
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
-			pairs.Append(name.Text)
+			pairsdata.Append(name.Text)
 		}
 	})
 
@@ -71,7 +72,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		},
 	)
 
-	list := widget.NewListWithData(pairs,
+	list := widget.NewListWithData(pairsdata,
 		func() fyne.CanvasObject {
 			return container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://github.com/hirokimoto")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 		},
@@ -125,7 +126,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		go func() {
 			for {
 				cc := make(chan string, 1)
-				activePair, _ = pairs.GetValue(id)
+				activePair, _ = pairsdata.GetValue(id)
 				utils.Post(cc, "swaps", activePair)
 				msg := <-cc
 				json.Unmarshal([]byte(msg), &selected)
