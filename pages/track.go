@@ -3,6 +3,7 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -94,6 +95,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					if alert {
 						services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
 					}
+					time.Sleep(time.Second * 5)
 				}
 			}()
 		})
@@ -107,6 +109,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				msg := <-cc
 				json.Unmarshal([]byte(msg), &selected)
 				trades.Refresh()
+				time.Sleep(time.Second * 5)
 			}
 		}()
 	}
