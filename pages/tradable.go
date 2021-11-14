@@ -10,11 +10,14 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
+	"github.com/leekchan/accounting"
 	"github.com/uniswap-auto-gui/services"
 	"github.com/uniswap-auto-gui/utils"
 )
 
 func tradableScreen(_ fyne.Window) fyne.CanvasObject {
+	money := accounting.Accounting{Symbol: "$", Precision: 6}
+
 	dataList := binding.BindStringList(&[]string{})
 
 	find := widget.NewButton("Find Tradable Coins", func() {
@@ -58,18 +61,14 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 					utils.Post(c1, "swaps", pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, a := services.SwapsInfo(swaps, 0.1)
+					n, p, c, d, _ := services.SwapsInfo(swaps, 0.1)
 					label.SetText(n)
-					price.SetText(fmt.Sprintf("$%f", p))
-					change.SetText(fmt.Sprintf("%f", c))
+					price.SetText(money.FormatMoney(p))
+					change.SetText(money.FormatMoney(c))
 					duration.SetText(fmt.Sprintf("%f hours", d))
 
 					url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 					dex.SetURL(parseURL(url))
-
-					if a {
-						services.Notify("Price Change Alert", n, url)
-					}
 				}
 			}()
 		})
