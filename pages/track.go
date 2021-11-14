@@ -90,6 +90,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					if a {
 						services.Notify("Price Change Alert", n, url)
 					}
+					alert, _ := acdata.Get()
+					if alert {
+						services.Notify("Price changed!", fmt.Sprintf("%s %f", n, p), url)
+					}
 				}
 			}()
 		})
