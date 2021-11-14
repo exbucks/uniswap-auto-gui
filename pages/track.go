@@ -84,7 +84,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					label.SetText(n)
 					price.SetText(fmt.Sprintf("%f", p))
 					change.SetText(fmt.Sprintf("%f", c))
-					duration.SetText(fmt.Sprintf("%f hours", d))
+					duration.SetText(fmt.Sprintf("%.2f hours", d))
 					if a {
 						services.Notify("Price Change Alert", n, url)
 					}
