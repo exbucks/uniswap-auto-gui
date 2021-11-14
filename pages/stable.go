@@ -10,14 +10,21 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
+	"github.com/leekchan/accounting"
 	"github.com/uniswap-auto-gui/services"
 	"github.com/uniswap-auto-gui/utils"
 )
 
 func stableScreen(_ fyne.Window) fyne.CanvasObject {
+	money := accounting.Accounting{Symbol: "$", Precision: 6}
+
 	dataList := binding.BindStringList(&[]string{})
 
+	infProgress := widget.NewProgressBarInfinite()
+	infProgress.Stop()
+
 	find := widget.NewButton("Find Stable Coins", func() {
+		infProgress.Start()
 		go func() {
 			for {
 				c1 := make(chan string, 1)
@@ -60,9 +67,9 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 					json.Unmarshal([]byte(msg), &swaps)
 					n, p, c, d, a := services.SwapsInfo(swaps, 0.1)
 					label.SetText(n)
-					price.SetText(fmt.Sprintf("$%f", p))
-					change.SetText(fmt.Sprintf("%f", c))
-					duration.SetText(fmt.Sprintf("%f hours", d))
+					price.SetText(money.FormatMoney(p))
+					change.SetText(money.FormatMoney(c))
+					duration.SetText(fmt.Sprintf("%.2f hours", d))
 
 					url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 					dex.SetURL(parseURL(url))
@@ -74,7 +81,8 @@ func stableScreen(_ fyne.Window) fyne.CanvasObject {
 			}()
 		})
 
-	return container.NewBorder(find, nil, nil, nil, list)
+	controls := container.NewVBox(find, infProgress)
+	return container.NewBorder(controls, nil, nil, nil, list)
 }
 
 func trackStables(pings <-chan string, list binding.ExternalStringList) {

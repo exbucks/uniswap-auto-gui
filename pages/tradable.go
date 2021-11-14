@@ -69,7 +69,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 					label.SetText(n)
 					price.SetText(money.FormatMoney(p))
 					change.SetText(money.FormatMoney(c))
-					duration.SetText(fmt.Sprintf("%f hours", d))
+					duration.SetText(fmt.Sprintf("%.2f hours", d))
 
 					url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 					dex.SetURL(parseURL(url))
