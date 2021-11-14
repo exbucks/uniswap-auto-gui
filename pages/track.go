@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/leekchan/accounting"
 	"github.com/uniswap-auto-gui/services"
 	"github.com/uniswap-auto-gui/utils"
 )
@@ -19,6 +20,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var oldPrice float64
 	var activePair string
 	alertType := "Alert any changes!"
+	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
 	ai := 0.1
 	aidata := binding.BindFloat(&ai)
@@ -66,7 +68,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		func(id widget.ListItemID, item fyne.CanvasObject) {
 			price, target, amount, amount1, amount2 := services.SwapInfo(selected.Data.Swaps[id])
 			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(target)
-			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(fmt.Sprintf("%f", price))
+			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(fmt.Sprintf("$%f", price))
 			item.(*fyne.Container).Objects[3].(*widget.Label).SetText(amount)
 			item.(*fyne.Container).Objects[4].(*widget.Label).SetText(amount1)
 			item.(*fyne.Container).Objects[5].(*widget.Label).SetText(amount2)
@@ -104,11 +106,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					if label.Text != n {
 						label.SetText(n)
 					}
-					_price := fmt.Sprintf("$%f", p)
+					_price := money.FormatMoney(p)
 					if price.Text != _price {
 						price.SetText(_price)
 					}
-					_change := fmt.Sprintf("$%f", c)
+					_change := money.FormatMoney(c)
 					if change.Text != _change {
 						change.SetText(_change)
 					}
