@@ -3,43 +3,31 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
-	gosxnotifier "github.com/deckarep/gosx-notifier"
-	"github.com/hirokimoto/crypto-auto/services"
-	"github.com/hirokimoto/crypto-auto/utils"
+	uniswap "github.com/hirokimoto/uniswap-api"
+	unitrade "github.com/hirokimoto/uniswap-api/swap"
+	unitrades "github.com/hirokimoto/uniswap-api/swaps"
 	"github.com/leekchan/accounting"
+	"github.com/uniswap-auto-gui/services"
 )
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
+
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
 	dataList := binding.BindStringList(&[]string{})
 
 	infProgress := widget.NewProgressBarInfinite()
-	command := make(chan string)
+	// command := make(chan string)
 	infProgress.Stop()
 	// command <- "Pause", "Stop"
 
 	find := widget.NewButton("Find Trading Pairs", func() {
 		infProgress.Start()
-		go func() {
-			progress := make(chan int, 1)
-			tt := &services.Tokens{}
-			for {
-				go services.AnalyzePairs(command, progress, tt)
-				msg := <-progress
-				fmt.Sprintf("Working on %d of %d", msg, tt.GetTotal())
-				if msg > tt.GetTotal()-2 {
-					services.Notify("Crypto Auto", "Completed analyzing!", "", gosxnotifier.Bottle)
-				}
-				time.Sleep(time.Minute * 20)
-			}
-		}()
 	})
 
 	list := widget.NewListWithData(dataList,
@@ -67,12 +55,15 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 
 			go func() {
 				for {
-					var swaps utils.Swaps
+					var swaps uniswap.Swaps
 					c1 := make(chan string, 1)
-					utils.SwapsByCounts(c1, 2, pair)
+					uniswap.SwapsByCounts(c1, 2, pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, _, _ := services.SwapsInfo(swaps, 0.1)
+
+					n := unitrade.Name(swaps.Data.Swaps[0])
+					p, c, d := unitrades.LastPriceChanges(swaps)
+
 					label.SetText(n)
 					price.SetText(money.FormatMoney(p))
 					change.SetText(money.FormatMoney(c))
@@ -83,6 +74,19 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				}
 			}()
 		})
+
+	go func() {
+		progress := make(chan int, 1)
+		pairs := make(chan []uniswap.Pair, 1)
+
+		go services.UniswapMarkketPairs(pairs, progress)
+
+		select {
+		case <-progress:
+			msg := <-progress
+			fmt.Println("$$$:   ", msg)
+		}
+	}()
 
 	controls := container.NewVBox(find, infProgress)
 	return container.NewBorder(controls, nil, nil, nil, list)
