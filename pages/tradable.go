@@ -10,9 +10,9 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
+	"github.com/hirokimoto/crypto-auto/services"
+	"github.com/hirokimoto/crypto-auto/utils"
 	"github.com/leekchan/accounting"
-	"github.com/uniswap-auto-gui/services"
-	"github.com/uniswap-auto-gui/utils"
 )
 
 func tradableScreen(_ fyne.Window) fyne.CanvasObject {
