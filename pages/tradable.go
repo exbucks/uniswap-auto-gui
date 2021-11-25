@@ -3,7 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -25,11 +24,12 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	find := widget.NewButton("Find Tradable Coins", func() {
 		infProgress.Start()
+		command := make(chan string)
+		progress := make(chan int)
+		tt := &services.Tokens{}
 		go func() {
 			for {
-				c1 := make(chan string, 1)
-				go utils.Post(c1, "pairs", "")
-				trackTradables(c1, dataList)
+				go services.AnalyzePairs(command, progress, tt)
 				time.Sleep(time.Minute * 20)
 			}
 		}()
@@ -55,7 +55,6 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
-				services.StoreAndRemovePair(pair)
 				btn.Refresh()
 			}
 
@@ -63,10 +62,10 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 				for {
 					var swaps utils.Swaps
 					c1 := make(chan string, 1)
-					utils.Post(c1, "swaps", pair)
+					utils.SwapsByCounts(c1, 2, pair)
 					msg := <-c1
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, _ := services.SwapsInfo(swaps, 0.1)
+					n, p, c, d, _, _ := services.SwapsInfo(swaps, 0.1)
 					label.SetText(n)
 					price.SetText(money.FormatMoney(p))
 					change.SetText(money.FormatMoney(c))
@@ -80,16 +79,4 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	controls := container.NewVBox(find, infProgress)
 	return container.NewBorder(controls, nil, nil, nil, list)
-}
-
-func trackTradables(pings <-chan string, list binding.ExternalStringList) {
-	msg := <-pings
-	var pairs utils.Pairs
-
-	json.Unmarshal([]byte(msg), &pairs)
-
-	var wg sync.WaitGroup
-	wg.Add(len(pairs.Data.Pairs))
-	go services.TradableTokens(&wg, pairs, list)
-	wg.Wait()
 }
