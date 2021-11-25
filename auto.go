@@ -12,7 +12,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/hirokimoto/crypto-auto/services"
 	"github.com/uniswap-auto-gui/pages"
 )
 
@@ -120,7 +119,7 @@ func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
 		}, w)
 	})
 	findItem := fyne.NewMenuItem("Find", func() { fmt.Println("Menu Find") })
-	pairsItem := fyne.NewMenuItem("Pairs", func() { services.InitializePairs() })
+	pairsItem := fyne.NewMenuItem("Pairs", func() {})
 
 	helpMenu := fyne.NewMenu("Help",
 		fyne.NewMenuItem("Documentation", func() {
