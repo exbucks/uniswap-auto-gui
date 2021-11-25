@@ -14,7 +14,7 @@ import (
 	"github.com/leekchan/accounting"
 )
 
-func tradableScreen(_ fyne.Window) fyne.CanvasObject {
+func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
 	dataList := binding.BindStringList(&[]string{})
@@ -22,7 +22,7 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 	infProgress := widget.NewProgressBarInfinite()
 	infProgress.Stop()
 
-	find := widget.NewButton("Find Tradable Coins", func() {
+	find := widget.NewButton("Find Trading Coins", func() {
 		infProgress.Start()
 		command := make(chan string)
 		progress := make(chan int)
