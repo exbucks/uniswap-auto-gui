@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.1.1
-	github.com/hirokimoto/uniswap-api v0.0.0-20211125211748-5a8520a78221
+	github.com/hirokimoto/uniswap-api v0.0.0-20211125214530-d0e745108d2d
 	github.com/leekchan/accounting v1.0.0
 )
 

@@ -7,7 +7,7 @@ import (
 	uniswap "github.com/hirokimoto/uniswap-api"
 )
 
-func UniswapMarkketPairs(pairs chan<- []uniswap.Pair, progress chan<- int) []uniswap.Pair {
+func UniswapMarkketPairs(target chan<- []uniswap.Pair, progress chan<- int) {
 	var pairs []uniswap.Pair
 	skip := 0
 
@@ -21,15 +21,15 @@ func UniswapMarkketPairs(pairs chan<- []uniswap.Pair, progress chan<- int) []uni
 		var data uniswap.Pairs
 		json.Unmarshal([]byte(msg), &data)
 		counts := len(data.Data.Pairs)
-		pairs = append(pairs, data.Data.Pairs)
+		pairs = append(pairs, data.Data.Pairs...)
 		if counts == 0 {
 			progress <- -1
-			return pairs
+			target <- pairs
+			return
 		}
 		skip += 1
 		progress <- skip
 
 		defer wg.Done()
 	}
-	return pairs
 }
