@@ -10,13 +10,14 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/hirokimoto/crypto-auto/services"
-	"github.com/hirokimoto/crypto-auto/utils"
+	uniswap "github.com/hirokimoto/uniswap-api"
+	unitrade "github.com/hirokimoto/uniswap-api/swap"
+	unitrades "github.com/hirokimoto/uniswap-api/swaps"
 	"github.com/leekchan/accounting"
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
-	var selected utils.Swaps
+	var selected uniswap.Swaps
 	var activePair string
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
@@ -63,7 +64,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			return container.NewHBox(widget.NewIcon(theme.DocumentIcon()), widget.NewLabel("target"), widget.NewLabel("price"), widget.NewLabel("amount"), widget.NewLabel("amount1"), widget.NewLabel("amount2"))
 		},
 		func(id widget.ListItemID, item fyne.CanvasObject) {
-			price, target, amount, amount1, amount2 := services.SwapInfo(selected.Data.Swaps[id])
+			price, target, amount, amount1, amount2 := unitrade.Trade(selected.Data.Swaps[id])
+
 			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(target)
 			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(fmt.Sprintf("$%f", price))
 			item.(*fyne.Container).Objects[3].(*widget.Label).SetText(amount)
@@ -94,16 +96,19 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {}
 
-			var swaps utils.Swaps
+			var swaps uniswap.Swaps
 			cc := make(chan string, 1)
 
 			go func() {
 				for {
-					go utils.SwapsByCounts(cc, 2, pair)
+					go uniswap.SwapsByCounts(cc, 2, pair)
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, _, _ := services.SwapsInfo(swaps, ai)
+					n := unitrade.Name(swaps.Data.Swaps[0])
+					p, _ := unitrade.Price(swaps.Data.Swaps[0])
+					_, c := unitrades.WholePriceChanges(swaps)
+					_, _, d := unitrades.Duration(swaps)
 
 					if label.Text != n {
 						label.SetText(n)
