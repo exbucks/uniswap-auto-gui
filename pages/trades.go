@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
+	gosxnotifier "github.com/deckarep/gosx-notifier"
 	"github.com/hirokimoto/crypto-auto/services"
 	"github.com/hirokimoto/crypto-auto/utils"
 	"github.com/leekchan/accounting"
@@ -20,16 +21,22 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	dataList := binding.BindStringList(&[]string{})
 
 	infProgress := widget.NewProgressBarInfinite()
+	command := make(chan string)
 	infProgress.Stop()
+	// command <- "Pause", "Stop"
 
-	find := widget.NewButton("Find Trading Coins", func() {
+	find := widget.NewButton("Find Trading Pairs", func() {
 		infProgress.Start()
-		command := make(chan string)
-		progress := make(chan int)
-		tt := &services.Tokens{}
 		go func() {
+			progress := make(chan int, 1)
+			tt := &services.Tokens{}
 			for {
 				go services.AnalyzePairs(command, progress, tt)
+				msg := <-progress
+				fmt.Sprintf("Working on %d of %d", msg, tt.GetTotal())
+				if msg > tt.GetTotal()-2 {
+					services.Notify("Crypto Auto", "Completed analyzing!", "", gosxnotifier.Bottle)
+				}
 				time.Sleep(time.Minute * 20)
 			}
 		}()
