@@ -105,6 +105,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
+
+					if len(swaps.Data.Swaps) == 0 {
+						time.Sleep(time.Second * 5)
+						continue
+					}
+
 					n := unitrade.Name(swaps.Data.Swaps[0])
 					p, _ := unitrade.Price(swaps.Data.Swaps[0])
 					_, c := unitrades.WholePriceChanges(swaps)
