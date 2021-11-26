@@ -21,6 +21,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
 	var activePair string
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
+	transactions := map[string]string{}
 
 	ai := 0.1
 	aidata := binding.BindFloat(&ai)
@@ -48,7 +49,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	pairsdata := binding.BindStringList(&pairs)
 
 	name := widget.NewEntry()
-	name.SetPlaceHolder("0x7a99822968410431edd1ee75dab78866e31caf39")
+	name.SetPlaceHolder("0x385769E84B650C070964398929DB67250B7ff72C")
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
 			pairs = append(pairs, name.Text)
@@ -113,6 +114,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						time.Sleep(time.Second * 5)
 						continue
 					}
+					if transactions[pair] == swaps.Data.Swaps[0].Id {
+						continue
+					}
 
 					n := unitrade.Name(swaps.Data.Swaps[0])
 					p, _ := unitrade.Price(swaps.Data.Swaps[0])
@@ -139,6 +143,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						selected = swaps
 						trades.Refresh()
 					}
+					transactions[pair] = swaps.Data.Swaps[0].Id
 					time.Sleep(time.Second * 5)
 				}
 			}()
