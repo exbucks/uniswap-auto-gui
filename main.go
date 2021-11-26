@@ -30,8 +30,8 @@ func main() {
 	w.SetMaster()
 
 	content := container.NewMax()
-	title := widget.NewLabel("Component name")
-	intro := widget.NewLabel("An introduction would probably go\nhere, as well as a")
+	title := widget.NewLabel("Uniswap Auto")
+	intro := widget.NewLabel("This is an app to help trading on Uniswap.")
 	intro.Wrapping = fyne.TextWrapWord
 	setPage := func(t pages.Page) {
 		if fyne.CurrentDevice().IsMobile() {
@@ -119,7 +119,6 @@ func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
 		}, w)
 	})
 	findItem := fyne.NewMenuItem("Find", func() { fmt.Println("Menu Find") })
-	pairsItem := fyne.NewMenuItem("Pairs", func() {})
 
 	helpMenu := fyne.NewMenu("Help",
 		fyne.NewMenuItem("Documentation", func() {
@@ -143,7 +142,7 @@ func makeMenu(a fyne.App, w fyne.Window) *fyne.MainMenu {
 	}
 	return fyne.NewMainMenu(
 		file,
-		fyne.NewMenu("Edit", cutItem, copyItem, pasteItem, fyne.NewMenuItemSeparator(), findItem, pairsItem),
+		fyne.NewMenu("Edit", cutItem, copyItem, pasteItem, fyne.NewMenuItemSeparator(), findItem),
 		helpMenu,
 	)
 }
