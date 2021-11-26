@@ -21,7 +21,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
 	var activePair string
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
-	transactions := map[string]string{}
+	trades := map[string]uniswap.Swaps{}
 
 	ai := 0.1
 	aidata := binding.BindFloat(&ai)
@@ -114,7 +114,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						time.Sleep(time.Second * 5)
 						continue
 					}
-					if transactions[pair] == swaps.Data.Swaps[0].Id {
+					if len(trades[pair].Data.Swaps) > 0 &&
+						trades[pair].Data.Swaps[0].Id == swaps.Data.Swaps[0].Id {
 						continue
 					}
 
@@ -139,11 +140,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						duration.SetText(_duration)
 					}
 
-					if activePair == pair {
+					if activePair == pair && selected.Data.Swaps[0].Id != swaps.Data.Swaps[0].Id {
 						selected = swaps
 						rightList.Refresh()
 					}
-					transactions[pair] = swaps.Data.Swaps[0].Id
+					trades[pair] = swaps
 					time.Sleep(time.Second * 5)
 				}
 			}()
@@ -151,6 +152,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	leftList.OnSelected = func(id widget.ListItemID) {
 		activePair, _ = pairsdata.GetValue(id)
+		selected = trades[activePair]
+		rightList.Refresh()
 	}
 
 	minPanel := container.NewHBox(minLabel, minEntry)
