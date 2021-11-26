@@ -76,14 +76,13 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		})
 
 	go func() {
-		progress := make(chan int, 1)
 		pairs := make(chan []uniswap.Pair, 1)
 
-		go services.UniswapMarkketPairs(pairs, progress)
+		go services.UniswapMarkketPairs(pairs)
 
 		select {
-		case <-progress:
-			msg := <-progress
+		case <-pairs:
+			msg := <-pairs
 			fmt.Println("$$$:   ", msg)
 		}
 	}()

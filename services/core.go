@@ -2,12 +2,13 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	uniswap "github.com/hirokimoto/uniswap-api"
 )
 
-func UniswapMarkketPairs(target chan<- []uniswap.Pair, progress chan<- int) {
+func UniswapMarkketPairs(target chan<- []uniswap.Pair) {
 	var pairs []uniswap.Pair
 	skip := 0
 
@@ -21,14 +22,16 @@ func UniswapMarkketPairs(target chan<- []uniswap.Pair, progress chan<- int) {
 		var data uniswap.Pairs
 		json.Unmarshal([]byte(msg), &data)
 		counts := len(data.Data.Pairs)
-		pairs = append(pairs, data.Data.Pairs...)
+		fmt.Println("Got ", counts, "...")
 		if counts == 0 {
-			progress <- -1
+			fmt.Println("Completed to get pairs ", len(pairs), ".....")
 			target <- pairs
+			defer wg.Done()
 			return
 		}
+		pairs = append(pairs, data.Data.Pairs...)
+		fmt.Println(skip, "* 1000 pairs is coming...")
 		skip += 1
-		progress <- skip
 
 		defer wg.Done()
 	}
