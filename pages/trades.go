@@ -78,10 +78,10 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		})
 
 	go func() {
-		pairs := make(chan []uniswap.Pair, 1)
+		pc := make(chan []uniswap.Pair, 1)
 
-		go services.UniswapMarkketPairs(pairs)
-		msg := <-pairs
+		go services.UniswapMarkketPairs(pc)
+		msg := <-pc
 
 		go func() {
 			for _, v := range msg {
@@ -89,18 +89,18 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				wg.Add(1)
 
 				var t Trade
-				var swaps uniswap.Swaps
+				var s uniswap.Swaps
 
-				cc := make(chan string, 1)
-				go uniswap.SwapsByCounts(cc, 2, v.Id)
-				msg := <-cc
-				json.Unmarshal([]byte(msg), &swaps)
+				sc := make(chan string, 1)
+				go uniswap.SwapsByCounts(sc, 2, v.Id)
+				msg := <-sc
+				json.Unmarshal([]byte(msg), &s)
 
-				if len(swaps.Data.Swaps) > 0 {
+				if len(s.Data.Swaps) > 0 {
 					t.pair = v
-					t.swaps = swaps
+					t.swaps = s
 					trades[v.Id] = t
-					fmt.Println(unitrade.Name(swaps.Data.Swaps[0]))
+					fmt.Println(unitrade.Name(s.Data.Swaps[0]))
 				}
 
 				defer wg.Done()
