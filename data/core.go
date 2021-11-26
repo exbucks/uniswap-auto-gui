@@ -4,17 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path/filepath"
 )
-
-func isExistedPairs(p string, pairs []string) bool {
-	for _, v := range pairs {
-		if v == p {
-			return true
-		}
-	}
-	return false
-}
 
 func WriteOnePair(pair string) error {
 	err := writeOnePair(pair)
@@ -50,8 +40,8 @@ func removeOnePair(pair string) error {
 }
 
 func absolutePath() string {
-	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	return dir
+	path, _ := os.UserCacheDir()
+	return path
 }
 
 func readLines(path string) ([]string, error) {
@@ -90,4 +80,13 @@ func fileExists(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func isExistedPairs(p string, pairs []string) bool {
+	for _, v := range pairs {
+		if v == p {
+			return true
+		}
+	}
+	return false
 }
