@@ -22,14 +22,12 @@ type Trade struct {
 }
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
-	money := accounting.Accounting{Symbol: "$", Precision: 6}
-
 	pairsList := binding.BindStringList(&[]string{})
 	trades := map[string]Trade{}
 
 	infProgress := widget.NewProgressBarInfinite()
-	// command := make(chan string)
 	infProgress.Stop()
+	// command := make(chan string)
 	// command <- "Pause", "Stop"
 
 	find := widget.NewButton("Find Trading Pairs", func() {
@@ -60,6 +58,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 			}
 
 			go func() {
+				money := accounting.Accounting{Symbol: "$", Precision: 6}
 				for {
 					swaps := trades[pair].swaps
 
