@@ -1,27 +1,51 @@
 package data
 
 import (
+	"bufio"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+
 	"fyne.io/fyne/v2"
 )
 
-const TRADABLES string = "/tradables.txt"
-const ALL_PAIRS string = "/allpairs.txt"
-
 func SaveTrackPairs(pairs []string) {
-	path := absolutePath() + "/tracks.txt"
-	err := writeLines(pairs, path)
+	file, err := os.CreateTemp("", "pairs.*.bat")
 	if err != nil {
-		fyne.CurrentApp().SendNotification(&fyne.Notification{
-			Title:   "Warning!",
-			Content: "Failed to save tracking pairs!",
-		})
+		log.Fatal(err)
 	}
+
+	w := bufio.NewWriter(file)
+	for _, pair := range pairs {
+		fmt.Fprintln(w, pair)
+	}
+	w.Flush()
+
+	fyne.CurrentApp().SendNotification(&fyne.Notification{
+		Title:   "Success",
+		Content: "Saved tracking pairs successfully!",
+	})
 }
 
 func ReadTrackPairs() []string {
-	path := absolutePath() + "/tracks.txt"
-	pairs, err := readLines(path)
+	file, err := ioutil.TempFile("", "pairs.*.bat")
+	if err != nil {
+		fmt.Println(err)
+		return []string{"0x7a99822968410431edd1ee75dab78866e31caf39"}
+	}
+
+	var pairs []string
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		pairs = append(pairs, scanner.Text())
+	}
+
 	if err != nil || len(pairs) == 0 {
+		fmt.Println(file.Name())
+		fmt.Println(err)
 		return []string{"0x7a99822968410431edd1ee75dab78866e31caf39"}
 	}
 	return pairs
