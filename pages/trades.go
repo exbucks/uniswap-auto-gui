@@ -3,7 +3,7 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"time"
+	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -15,6 +15,11 @@ import (
 	"github.com/leekchan/accounting"
 	"github.com/uniswap-auto-gui/services"
 )
+
+type Trade struct {
+	pair  uniswap.Pair
+	swaps uniswap.Swaps
+}
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
@@ -81,10 +86,26 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		go services.UniswapMarkketPairs(pairs)
 		msg := <-pairs
 
+		var trades []Trade
 		go func() {
 			for _, v := range msg {
-				pairsList.Append(v.Id)
-				time.Sleep(1 * time.Second)
+				var wg sync.WaitGroup
+				wg.Add(1)
+
+				var t Trade
+				var swaps uniswap.Swaps
+
+				cc := make(chan string, 1)
+				go uniswap.SwapsByCounts(cc, 2, v.Id)
+				msg := <-cc
+				json.Unmarshal([]byte(msg), &swaps)
+
+				t.pair = v
+				t.swaps = swaps
+				trades = append(trades, t)
+				fmt.Println(unitrade.Name(swaps.Data.Swaps[0]))
+
+				defer wg.Done()
 			}
 		}()
 	}()
