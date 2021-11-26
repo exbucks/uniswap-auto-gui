@@ -16,10 +16,9 @@ import (
 )
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
-
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
-	dataList := binding.BindStringList(&[]string{})
+	pairsList := binding.BindStringList(&[]string{})
 
 	infProgress := widget.NewProgressBarInfinite()
 	// command := make(chan string)
@@ -30,7 +29,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		infProgress.Start()
 	})
 
-	list := widget.NewListWithData(dataList,
+	list := widget.NewListWithData(pairsList,
 		func() fyne.CanvasObject {
 			leftPane := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 			return container.NewBorder(nil, nil, leftPane, widget.NewButton("+", nil))
@@ -79,11 +78,10 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		pairs := make(chan []uniswap.Pair, 1)
 
 		go services.UniswapMarkketPairs(pairs)
+		msg := <-pairs
 
-		select {
-		case <-pairs:
-			msg := <-pairs
-			fmt.Println("$$$:   ", msg)
+		for _, v := range msg {
+			pairsList.Append(v.Id)
 		}
 	}()
 
