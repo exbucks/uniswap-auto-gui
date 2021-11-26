@@ -3,6 +3,7 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -80,9 +81,12 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		go services.UniswapMarkketPairs(pairs)
 		msg := <-pairs
 
-		for _, v := range msg {
-			pairsList.Append(v.Id)
-		}
+		go func() {
+			for _, v := range msg {
+				pairsList.Append(v.Id)
+				time.Sleep(1 * time.Second)
+			}
+		}()
 	}()
 
 	controls := container.NewVBox(find, infProgress)
