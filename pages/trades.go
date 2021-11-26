@@ -22,19 +22,48 @@ type Trade struct {
 }
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
-	pairsList := binding.BindStringList(&[]string{})
+	var pairs []uniswap.Pair
+	pairsBind := binding.BindStringList(&[]string{})
 	trades := map[string]Trade{}
 
 	infProgress := widget.NewProgressBarInfinite()
 	infProgress.Stop()
-	// command := make(chan string)
-	// command <- "Pause", "Stop"
 
 	find := widget.NewButton("Find Trading Pairs", func() {
 		infProgress.Start()
+
+		go func() {
+			for _, v := range pairs {
+				var wg sync.WaitGroup
+				wg.Add(1)
+
+				var t Trade
+				var s uniswap.Swaps
+
+				sc := make(chan string, 1)
+				go uniswap.SwapsByCounts(sc, 2, v.Id)
+				msg := <-sc
+				json.Unmarshal([]byte(msg), &s)
+
+				if len(s.Data.Swaps) > 0 {
+					t.pair = v
+					t.swaps = s
+					trades[v.Id] = t
+					fmt.Println(unitrade.Name(s.Data.Swaps[0]))
+				}
+
+				defer wg.Done()
+			}
+
+			for _, v := range trades {
+				pairsBind.Append(v.pair.Id)
+			}
+
+			infProgress.Stop()
+		}()
 	})
 
-	list := widget.NewListWithData(pairsList,
+	list := widget.NewListWithData(pairsBind,
 		func() fyne.CanvasObject {
 			leftPane := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 			return container.NewBorder(nil, nil, leftPane, widget.NewButton("+", nil))
@@ -60,12 +89,12 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 			go func() {
 				money := accounting.Accounting{Symbol: "$", Precision: 6}
 				for {
-					swaps := trades[pair].swaps
+					s := trades[pair].swaps
 
-					n := unitrade.Name(swaps.Data.Swaps[0])
-					p, c, d := unitrades.LastPriceChanges(swaps)
+					n := unitrade.Name(s.Data.Swaps[0])
+					p, c, d := unitrades.LastPriceChanges(s)
+
 					fmt.Println(n)
-
 					label.SetText(n)
 					price.SetText(money.FormatMoney(p))
 					change.SetText(money.FormatMoney(c))
@@ -79,37 +108,8 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 
 	go func() {
 		pc := make(chan []uniswap.Pair, 1)
-
 		go services.UniswapMarkketPairs(pc)
-		msg := <-pc
-
-		go func() {
-			for _, v := range msg {
-				var wg sync.WaitGroup
-				wg.Add(1)
-
-				var t Trade
-				var s uniswap.Swaps
-
-				sc := make(chan string, 1)
-				go uniswap.SwapsByCounts(sc, 2, v.Id)
-				msg := <-sc
-				json.Unmarshal([]byte(msg), &s)
-
-				if len(s.Data.Swaps) > 0 {
-					t.pair = v
-					t.swaps = s
-					trades[v.Id] = t
-					fmt.Println(unitrade.Name(s.Data.Swaps[0]))
-				}
-
-				defer wg.Done()
-			}
-
-			for _, v := range trades {
-				pairsList.Append(v.pair.Id)
-			}
-		}()
+		pairs = <-pc
 	}()
 
 	controls := container.NewVBox(find, infProgress)
