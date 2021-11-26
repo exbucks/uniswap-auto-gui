@@ -97,13 +97,18 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				msg := <-cc
 				json.Unmarshal([]byte(msg), &swaps)
 
-				t.pair = v
-				t.swaps = swaps
-				trades[v.Id] = t
-				pairsList.Append(v.Id)
-				fmt.Println(unitrade.Name(swaps.Data.Swaps[0]))
+				if len(swaps.Data.Swaps) > 0 {
+					t.pair = v
+					t.swaps = swaps
+					trades[v.Id] = t
+					fmt.Println(unitrade.Name(swaps.Data.Swaps[0]))
+				}
 
 				defer wg.Done()
+			}
+
+			for _, v := range trades {
+				pairsList.Append(v.pair.Id)
 			}
 		}()
 	}()
