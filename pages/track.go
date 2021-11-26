@@ -115,7 +115,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						continue
 					}
 					if len(trades[pair].Data.Swaps) > 0 &&
-						trades[pair].Data.Swaps[0].Id == swaps.Data.Swaps[0].Id {
+						(trades[pair].Data.Swaps[0].Id == swaps.Data.Swaps[0].Id ||
+							trades[pair].Data.Swaps[0].Timestamp > swaps.Data.Swaps[0].Timestamp) {
 						continue
 					}
 
@@ -140,7 +141,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						duration.SetText(_duration)
 					}
 
-					if activePair == pair && selected.Data.Swaps[0].Id != swaps.Data.Swaps[0].Id {
+					if activePair == pair &&
+						selected.Data.Swaps[0].Id != swaps.Data.Swaps[0].Id {
 						selected = swaps
 						rightList.Refresh()
 					}
