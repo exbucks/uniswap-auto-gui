@@ -7,12 +7,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 	uniswap "github.com/hirokimoto/uniswap-api"
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
-	unitrades "github.com/hirokimoto/uniswap-api/swaps"
-	"github.com/leekchan/accounting"
 	"github.com/uniswap-auto-gui/services"
 )
 
@@ -23,8 +20,26 @@ type Trade struct {
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	var pairs []uniswap.Pair
-	pairsBind := binding.BindStringList(&[]string{})
 	trades := map[string]Trade{}
+
+	table := widget.NewTable(
+		func() (int, int) { return len(pairs), 7 },
+		func() fyne.CanvasObject {
+			return widget.NewLabel("Cell 000, 000")
+		},
+		func(id widget.TableCellID, cell fyne.CanvasObject) {
+			label := cell.(*widget.Label)
+			switch id.Col {
+			case 0:
+				label.SetText(fmt.Sprintf("%d", id.Row+1))
+			case 1:
+				label.SetText(pairs[id.Row].Token0.Symbol)
+			default:
+				label.SetText(fmt.Sprintf("Cell %d, %d", id.Row+1, id.Col+1))
+			}
+		})
+	table.SetColumnWidth(0, 34)
+	table.SetColumnWidth(1, 102)
 
 	infProgress := widget.NewProgressBarInfinite()
 	infProgress.Stop()
@@ -49,62 +64,16 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 					t.pair = v
 					t.swaps = s
 					trades[v.Id] = t
+					table.Refresh()
 					fmt.Println(unitrade.Name(s.Data.Swaps[0]))
 				}
 
 				defer wg.Done()
 			}
 
-			for _, v := range trades {
-				pairsBind.Append(v.pair.Id)
-			}
-
 			infProgress.Stop()
 		}()
 	})
-
-	list := widget.NewListWithData(pairsBind,
-		func() fyne.CanvasObject {
-			leftPane := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://fyne.io/")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
-			return container.NewBorder(nil, nil, leftPane, widget.NewButton("+", nil))
-		},
-		func(item binding.DataItem, obj fyne.CanvasObject) {
-			lc := obj.(*fyne.Container).Objects[0].(*fyne.Container)
-
-			dex := lc.Objects[0].(*widget.Hyperlink)
-
-			f := item.(binding.String)
-			pair, _ := f.Get()
-
-			label := lc.Objects[1].(*widget.Label)
-			price := lc.Objects[2].(*widget.Label)
-			change := lc.Objects[3].(*widget.Label)
-			duration := lc.Objects[4].(*widget.Label)
-
-			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
-			btn.OnTapped = func() {
-				btn.Refresh()
-			}
-
-			go func() {
-				money := accounting.Accounting{Symbol: "$", Precision: 6}
-				for {
-					s := trades[pair].swaps
-
-					n := unitrade.Name(s.Data.Swaps[0])
-					p, c, d := unitrades.LastPriceChanges(s)
-
-					fmt.Println(n)
-					label.SetText(n)
-					price.SetText(money.FormatMoney(p))
-					change.SetText(money.FormatMoney(c))
-					duration.SetText(fmt.Sprintf("%.2f hours", d))
-
-					url := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
-					dex.SetURL(parseURL(url))
-				}
-			}()
-		})
 
 	go func() {
 		pc := make(chan []uniswap.Pair, 1)
@@ -113,5 +82,5 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	}()
 
 	controls := container.NewVBox(find, infProgress)
-	return container.NewBorder(controls, nil, nil, nil, list)
+	return container.NewBorder(controls, nil, nil, nil, table)
 }
