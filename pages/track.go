@@ -147,7 +147,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						rightList.Refresh()
 					}
 					trades[pair] = swaps
-					time.Sleep(time.Second * 5)
+					time.Sleep(time.Second * 1)
 				}
 			}()
 		})
