@@ -14,6 +14,7 @@ import (
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
 	unitrades "github.com/hirokimoto/uniswap-api/swaps"
 	"github.com/leekchan/accounting"
+	"github.com/uniswap-auto-gui/data"
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
@@ -50,7 +51,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	name.SetPlaceHolder("0x7a99822968410431edd1ee75dab78866e31caf39")
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
-			pairsdata.Append(name.Text)
+			pairs = append(pairs, name.Text)
+			pairsdata.Reload()
+			data.SaveTrackPairs(pairs)
 		}
 	})
 
