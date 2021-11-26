@@ -25,6 +25,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
 	pairsList := binding.BindStringList(&[]string{})
+	trades := map[string]Trade{}
 
 	infProgress := widget.NewProgressBarInfinite()
 	// command := make(chan string)
@@ -60,14 +61,11 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 
 			go func() {
 				for {
-					var swaps uniswap.Swaps
-					c1 := make(chan string, 1)
-					uniswap.SwapsByCounts(c1, 2, pair)
-					msg := <-c1
-					json.Unmarshal([]byte(msg), &swaps)
+					swaps := trades[pair].swaps
 
 					n := unitrade.Name(swaps.Data.Swaps[0])
 					p, c, d := unitrades.LastPriceChanges(swaps)
+					fmt.Println(n)
 
 					label.SetText(n)
 					price.SetText(money.FormatMoney(p))
@@ -86,7 +84,6 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		go services.UniswapMarkketPairs(pairs)
 		msg := <-pairs
 
-		var trades []Trade
 		go func() {
 			for _, v := range msg {
 				var wg sync.WaitGroup
@@ -102,7 +99,8 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 
 				t.pair = v
 				t.swaps = swaps
-				trades = append(trades, t)
+				trades[v.Id] = t
+				pairsList.Append(v.Id)
 				fmt.Println(unitrade.Name(swaps.Data.Swaps[0]))
 
 				defer wg.Done()
