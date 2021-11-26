@@ -60,7 +60,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	control := container.NewVBox(name, append)
 
-	trades := widget.NewList(
+	rightList := widget.NewList(
 		func() int {
 			return len(selected.Data.Swaps)
 		},
@@ -78,7 +78,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		},
 	)
 
-	list := widget.NewListWithData(pairsdata,
+	leftList := widget.NewListWithData(pairsdata,
 		func() fyne.CanvasObject {
 			left := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://github.com/hirokimoto")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
 			return container.NewBorder(nil, nil, left, widget.NewButton("-", nil))
@@ -141,7 +141,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					if activePair == pair {
 						selected = swaps
-						trades.Refresh()
+						rightList.Refresh()
 					}
 					transactions[pair] = swaps.Data.Swaps[0].Id
 					time.Sleep(time.Second * 5)
@@ -149,7 +149,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}()
 		})
 
-	list.OnSelected = func(id widget.ListItemID) {
+	leftList.OnSelected = func(id widget.ListItemID) {
 		activePair, _ = pairsdata.GetValue(id)
 	}
 
@@ -157,6 +157,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	maxPanel := container.NewHBox(maxLabel, maxEntry)
 	alertSpecialPanel := container.NewBorder(nil, nil, minPanel, maxPanel)
 	settings := container.NewVBox(alertInterval, alerts, alertSpecialPanel)
-	listPanel := container.NewBorder(settings, control, nil, nil, list)
-	return container.NewHSplit(listPanel, trades)
+	listPanel := container.NewBorder(settings, control, nil, nil, leftList)
+	return container.NewHSplit(listPanel, rightList)
 }
