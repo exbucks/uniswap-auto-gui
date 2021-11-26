@@ -44,7 +44,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	alerts.Horizontal = true
 	alerts.SetSelected("Alert any changes!")
 
-	pairs := []string{"0x7a99822968410431edd1ee75dab78866e31caf39"}
+	pairs := data.ReadTrackPairs()
 	pairsdata := binding.BindStringList(&pairs)
 
 	name := widget.NewEntry()
