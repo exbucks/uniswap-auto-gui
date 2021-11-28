@@ -8,6 +8,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	gosxnotifier "github.com/deckarep/gosx-notifier"
@@ -144,7 +145,32 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 100)
 	table.OnSelected = func(id widget.TableCellID) {
-		fmt.Printf("Select col %d row %d\n", id.Col, id.Row)
+		if id.Col == 2 {
+			pair := pairs[id.Row]
+			w := fyne.CurrentApp().NewWindow("Settings")
+
+			min, max := data.ReadMinMax(records, pair)
+			mindata := binding.BindFloat(&min)
+			minLabel := widget.NewLabel("Minimum")
+			minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
+			minPanel := container.NewGridWithColumns(2, minLabel, minEntry)
+
+			maxdata := binding.BindFloat(&max)
+			maxLabel := widget.NewLabel("Maximum")
+			maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
+			maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
+
+			btnSave := widget.NewButton("Save", func() {
+				data.SaveTrackSettings(pair, min, max)
+			})
+
+			settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)
+			w.SetContent(settingsPanel)
+
+			w.Resize(fyne.NewSize(340, 180))
+			w.SetFixedSize(true)
+			w.Show()
+		}
 	}
 
 	listPanel := container.NewBorder(nil, control, nil, nil, table)
