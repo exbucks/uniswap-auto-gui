@@ -22,6 +22,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	pairs := data.ReadTrackPairs()
 	records, _ := data.ReadTrackSettings()
+	old := make([]float64, 0.0)
+
+	for _, _ = range pairs {
+		old = append(old, 0.0)
+	}
 
 	name := widget.NewEntry()
 	name.SetPlaceHolder("0x385769E84B650C070964398929DB67250B7ff72C")
@@ -89,6 +94,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					p, _ := unitrade.Price(swaps.Data.Swaps[0])
 					_, c := unitrades.WholePriceChanges(swaps)
 					_, _, d := unitrades.Duration(swaps)
+
+					if old[id.Row] != p {
+						alert(records, pair, n, p, c, d)
+					}
+
 					switch id.Col {
 					case 0:
 						label.SetText(fmt.Sprintf("%d", id.Row+1))
@@ -98,7 +108,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						}
 					case 2:
 						if label.Text != fmt.Sprintf("%f", p) {
-							alert(records, pair, n, p, c, d)
 							label.SetText(fmt.Sprintf("%f", p))
 						}
 					case 3:
@@ -111,6 +120,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						}
 					default:
 					}
+					old[id.Row] = p
 					time.Sleep(time.Second * 1)
 				}
 			}()
