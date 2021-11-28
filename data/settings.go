@@ -23,8 +23,6 @@ func SaveTrackSettings(address string, min float64, max float64) {
 	oldRecords, _ := ReadTrackSettings()
 	var newRecords [][]string
 
-	fmt.Println(oldRecords)
-
 	isAdded := false
 	for _, record := range oldRecords {
 		caddress := string(record[0])
