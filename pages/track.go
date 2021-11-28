@@ -125,7 +125,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 			go func() {
 				for {
-					go uniswap.SwapsByCounts(cc, 5, pair)
+					go uniswap.SwapsByCounts(cc, 10, pair)
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
@@ -186,7 +186,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					}
 					oldPrices[pair] = p
 
-					time.Sleep(time.Second * 5)
+					time.Sleep(time.Second * 1)
 				}
 			}()
 		})
