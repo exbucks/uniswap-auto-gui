@@ -43,6 +43,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}
 			if !isExisted {
 				pairs = append(pairs, name.Text)
+				oldPrices = append(oldPrices, 0.0)
+				oldTimes = append(oldTimes, 1638118581)
 				data.SaveTrackPairs(pairs)
 			}
 		}
@@ -69,7 +71,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 5 },
+		func() (int, int) { return len(pairs), 6 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -112,7 +114,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						}
 					case 1:
 						if label.Text == "" {
-							label.SetText(n)
+							if len(n) > 10 {
+								label.SetText(n[0:10])
+							} else {
+								label.SetText(n)
+							}
 						}
 					case 2:
 						if label.Text != fmt.Sprintf("%f", p) {
@@ -126,6 +132,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						if label.Text != fmt.Sprintf("%f", d) {
 							label.SetText(fmt.Sprintf("%f", d))
 						}
+					case 5:
+
 					default:
 					}
 					time.Sleep(time.Second * 1)
@@ -137,6 +145,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(2, 100)
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 100)
+	table.SetColumnWidth(5, 100)
 
 	listPanel := container.NewBorder(nil, control, nil, nil, table)
 
