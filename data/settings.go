@@ -1,23 +1,15 @@
 package data
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"fyne.io/fyne/v2"
 )
 
-type Setting struct {
-	min float64
-	max float64
-}
-
-func SaveTrackSettings(settings map[string]Setting) {
+func SaveTrackSettings(settings []byte) {
 	path := absolutePath() + "/settings.txt"
-
-	t, _ := json.Marshal(settings)
-
-	err := writeBytes(t, path)
+	fmt.Println(settings)
+	err := writeBytes(settings, path)
 
 	if err != nil {
 		fyne.CurrentApp().SendNotification(&fyne.Notification{
@@ -33,17 +25,15 @@ func SaveTrackSettings(settings map[string]Setting) {
 	})
 }
 
-func ReadTrackSettings() (map[string]Setting, error) {
+func ReadTrackSettings() ([]byte, error) {
 	path := absolutePath() + "/settings.txt"
 	bytes, err := readBytes(path)
+	fmt.Println(bytes)
 
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	var settings map[string]Setting
-	json.Unmarshal([]byte(bytes), &settings)
-
-	return settings, nil
+	return bytes, nil
 }

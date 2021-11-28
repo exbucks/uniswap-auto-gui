@@ -17,12 +17,21 @@ import (
 	"github.com/uniswap-auto-gui/data"
 )
 
+type Setting struct {
+	min float64
+	max float64
+}
+
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
 	var activePair string
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 	trades := map[string]uniswap.Swaps{}
-	settings := map[string]data.Setting{}
+	settings := map[string]Setting{}
+
+	temp, _ := data.ReadTrackSettings()
+	json.Unmarshal([]byte(temp), &settings)
+	fmt.Println(settings)
 
 	pairs := data.ReadTrackPairs()
 	pairsdata := binding.BindStringList(&pairs)
@@ -95,8 +104,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
 
 				btnSave := widget.NewButton("Save", func() {
-					var minmax = data.Setting{min, max}
-					settings[pair] = minmax
+					settings[pair] = Setting{min, max}
+					temp, _ := json.Marshal(settings)
+					data.SaveTrackSettings(temp)
 				})
 
 				settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)

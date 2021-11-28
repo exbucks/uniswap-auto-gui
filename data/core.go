@@ -3,6 +3,7 @@ package data
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -61,15 +62,9 @@ func readLines(path string) ([]string, error) {
 }
 
 func readBytes(path string) ([]byte, error) {
-	var bytes []byte
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	_, err = file.Read(bytes)
+	b, err := ioutil.ReadFile(path)
 
-	return bytes, err
+	return b, err
 }
 
 func writeLines(lines []string, path string) error {
@@ -87,13 +82,7 @@ func writeLines(lines []string, path string) error {
 }
 
 func writeBytes(bytes []byte, path string) error {
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.Write(bytes)
+	err := ioutil.WriteFile(path, bytes, 0644)
 	return err
 }
 
