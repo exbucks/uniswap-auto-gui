@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	uniswap "github.com/hirokimoto/uniswap-api"
@@ -81,7 +82,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	leftList := widget.NewListWithData(pairsdata,
 		func() fyne.CanvasObject {
 			left := container.NewHBox(widget.NewHyperlink("DEX", parseURL("https://github.com/hirokimoto")), widget.NewLabel("token"), widget.NewLabel("price"), widget.NewLabel("change"), widget.NewLabel("duration"))
-			return container.NewBorder(nil, nil, left, widget.NewButton("-", nil))
+			right := container.NewHBox(widget.NewButton("#", nil), widget.NewButton("-", nil))
+			return container.NewBorder(nil, nil, left, right)
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
 			s := item.(binding.String)
@@ -97,8 +99,18 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			change := left.Objects[3].(*widget.Label)
 			duration := left.Objects[4].(*widget.Label)
 
-			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
-			btn.OnTapped = func() {}
+			right := obj.(*fyne.Container).Objects[1].(*fyne.Container)
+			btnSettings := right.Objects[0].(*widget.Button)
+			btnSettings.OnTapped = func() {
+				w := fyne.CurrentApp().NewWindow("Fixed")
+				w.SetContent(fyne.NewContainerWithLayout(layout.NewCenterLayout(), widget.NewLabel("Hello World!")))
+
+				w.Resize(fyne.NewSize(240, 180))
+				w.SetFixedSize(true)
+				w.Show()
+			}
+			btnRemove := right.Objects[1].(*widget.Button)
+			btnRemove.OnTapped = func() {}
 
 			var swaps uniswap.Swaps
 			cc := make(chan string, 1)
