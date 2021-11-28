@@ -116,7 +116,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				w.Show()
 			}
 			btnRemove := right.Objects[1].(*widget.Button)
-			btnRemove.OnTapped = func() {}
+			btnRemove.OnTapped = func() {
+
+			}
 
 			var swaps uniswap.Swaps
 			cc := make(chan string, 1)
@@ -184,7 +186,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					}
 					oldPrices[pair] = p
 
-					time.Sleep(time.Second * 1)
+					time.Sleep(time.Second * 5)
 				}
 			}()
 		})
