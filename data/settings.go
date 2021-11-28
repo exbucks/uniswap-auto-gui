@@ -5,18 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 )
 
-func SaveTrackSettings() {
-	records := [][]string{
-		{"first_name", "last_name", "occupation"},
-		{"John", "Doe", "gardener"},
-		{"Lucy", "Smith", "teacher"},
-		{"Brian", "Bethamy", "programmer"},
-	}
-
+func SaveTrackSettings(address string, min float64, max float64) {
 	filePath := absolutePath() + "/settings.csv"
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
@@ -25,7 +19,30 @@ func SaveTrackSettings() {
 	defer f.Close()
 
 	csvWriter := csv.NewWriter(f)
-	err = csvWriter.WriteAll(records)
+
+	oldRecords, _ := ReadTrackSettings()
+	var newRecords [][]string
+
+	fmt.Println(oldRecords)
+
+	isAdded := false
+	for _, record := range oldRecords {
+		caddress := string(record[0])
+		cmin := string(record[1])
+		cmax := string(record[2])
+
+		if address == caddress {
+			isAdded = true
+			newRecords = append(newRecords, []string{caddress, fmt.Sprintf("%f", min), fmt.Sprintf("%f", max)})
+		} else {
+			newRecords = append(newRecords, []string{caddress, cmin, cmax})
+		}
+	}
+	if !isAdded {
+		newRecords = append(newRecords, []string{address, fmt.Sprintf("%f", min), fmt.Sprintf("%f", max)})
+	}
+
+	err = csvWriter.WriteAll(newRecords)
 
 	if err != nil {
 		log.Fatal("Unable to parse file as CSV for "+filePath, err)
@@ -62,4 +79,18 @@ func ReadTrackSettings() ([][]string, error) {
 	fmt.Println(records)
 
 	return records, nil
+}
+
+func ReadMinMax(address string) (float64, float64) {
+	records, _ := ReadTrackSettings()
+	min := 0.0
+	max := 0.0
+	for _, record := range records {
+		caddress := string(record[0])
+		if address == caddress {
+			min, _ = strconv.ParseFloat(record[1], 64)
+			max, _ = strconv.ParseFloat(record[2], 64)
+		}
+	}
+	return min, max
 }

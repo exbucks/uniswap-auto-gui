@@ -90,13 +90,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			btnSettings.OnTapped = func() {
 				w := fyne.CurrentApp().NewWindow("Settings")
 
-				min := settings[pair].min
+				min, max := data.ReadMinMax(pair)
 				mindata := binding.BindFloat(&min)
 				minLabel := widget.NewLabel("Minimum")
 				minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
 				minPanel := container.NewGridWithColumns(2, minLabel, minEntry)
 
-				max := settings[pair].max
 				maxdata := binding.BindFloat(&max)
 				maxLabel := widget.NewLabel("Maximum")
 				maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
@@ -104,7 +103,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 				btnSave := widget.NewButton("Save", func() {
 					settings[pair] = Setting{min, max}
-					data.SaveTrackSettings()
+					data.SaveTrackSettings(pair, min, max)
 				})
 
 				settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)

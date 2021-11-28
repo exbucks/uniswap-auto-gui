@@ -3,7 +3,6 @@ package data
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -61,12 +60,6 @@ func readLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func readBytes(path string) ([]byte, error) {
-	b, err := ioutil.ReadFile(path)
-
-	return b, err
-}
-
 func writeLines(lines []string, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -79,26 +72,4 @@ func writeLines(lines []string, path string) error {
 		fmt.Fprintln(w, line)
 	}
 	return w.Flush()
-}
-
-func writeBytes(bytes []byte, path string) error {
-	err := ioutil.WriteFile(path, bytes, 0644)
-	return err
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func isExistedPairs(p string, pairs []string) bool {
-	for _, v := range pairs {
-		if v == p {
-			return true
-		}
-	}
-	return false
 }
