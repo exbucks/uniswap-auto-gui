@@ -23,12 +23,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 	trades := map[string]uniswap.Swaps{}
 
-	alerts := widget.NewRadioGroup([]string{"Alert any changes!", "Alert special changes!"}, func(s string) {
-		fmt.Println(s)
-	})
-	alerts.Horizontal = true
-	alerts.SetSelected("Alert any changes!")
-
 	pairs := data.ReadTrackPairs()
 	pairsdata := binding.BindStringList(&pairs)
 
@@ -171,7 +165,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		rightList.Refresh()
 	}
 
-	settings := container.NewVBox(alerts)
-	listPanel := container.NewBorder(settings, control, nil, nil, leftList)
+	listPanel := container.NewBorder(nil, control, nil, nil, leftList)
 	return container.NewHSplit(listPanel, rightList)
 }
