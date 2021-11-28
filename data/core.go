@@ -60,6 +60,18 @@ func readLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+func readBytes(path string) ([]byte, error) {
+	var bytes []byte
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	_, err = file.Read(bytes)
+
+	return bytes, err
+}
+
 func writeLines(lines []string, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -72,6 +84,17 @@ func writeLines(lines []string, path string) error {
 		fmt.Fprintln(w, line)
 	}
 	return w.Flush()
+}
+
+func writeBytes(bytes []byte, path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.Write(bytes)
+	return err
 }
 
 func fileExists(filename string) bool {

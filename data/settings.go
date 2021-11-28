@@ -1,39 +1,49 @@
 package data
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"fyne.io/fyne/v2"
 )
 
-func SaveTrackSettings(pairs []string) {
-	path := absolutePath() + "/pairs.txt"
-	err := writeLines(pairs, path)
+type Setting struct {
+	min float64
+	max float64
+}
+
+func SaveTrackSettings(settings map[string]Setting) {
+	path := absolutePath() + "/settings.txt"
+
+	t, _ := json.Marshal(settings)
+
+	err := writeBytes(t, path)
 
 	if err != nil {
 		fyne.CurrentApp().SendNotification(&fyne.Notification{
 			Title:   "Error",
-			Content: "Failed tracking pairs!",
+			Content: "Failed saving settings!",
 		})
 		return
 	}
 
 	fyne.CurrentApp().SendNotification(&fyne.Notification{
 		Title:   "Success",
-		Content: "Saved tracking pairs successfully!",
+		Content: "Saved settings successfully!",
 	})
 }
 
-func ReadTrackSettings() []string {
-	path := absolutePath() + "/pairs.txt"
-	pairs, err := readLines(path)
+func ReadTrackSettings() (map[string]Setting, error) {
+	path := absolutePath() + "/settings.txt"
+	bytes, err := readBytes(path)
 
 	if err != nil {
 		fmt.Println(err)
-		return []string{
-			"0x7a99822968410431edd1ee75dab78866e31caf39",
-			"0x3dd49f67e9d5bc4c5e6634b3f70bfd9dc1b6bd74"}
+		return nil, err
 	}
 
-	return pairs
+	var settings map[string]Setting
+	json.Unmarshal([]byte(bytes), &settings)
+
+	return settings, nil
 }
