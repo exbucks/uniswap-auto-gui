@@ -88,7 +88,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					var swaps uniswap.Swaps
 					cc := make(chan string, 1)
-					go uniswap.SwapsByCounts(cc, 2, pair)
+					go uniswap.SwapsByCounts(cc, 20, pair)
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
