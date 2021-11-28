@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"fyne.io/fyne/v2"
 	uniswap "github.com/hirokimoto/uniswap-api"
 )
 
@@ -35,4 +36,11 @@ func UniswapMarkketPairs(target chan<- []uniswap.Pair) {
 
 		defer wg.Done()
 	}
+}
+
+func Notify(title string, message string) {
+	fyne.CurrentApp().SendNotification(&fyne.Notification{
+		Title:   title,
+		Content: message,
+	})
 }
