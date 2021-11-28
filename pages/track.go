@@ -91,17 +91,15 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				mindata := binding.BindFloat(&min)
 				minLabel := widget.NewLabel("Minimum")
 				minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
-				minPanel := container.NewHBox(minLabel, minEntry)
+				minPanel := container.NewGridWithColumns(2, minLabel, minEntry)
 
 				max := 0.4
 				maxdata := binding.BindFloat(&max)
 				maxLabel := widget.NewLabel("Maximum")
 				maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
-				maxPanel := container.NewHBox(maxLabel, maxEntry)
+				maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
 
-				mmPanel := container.NewBorder(nil, nil, minPanel, maxPanel)
-
-				settingsPanel := container.NewVBox(mmPanel)
+				settingsPanel := container.NewVBox(minPanel, maxPanel)
 				w.SetContent(settingsPanel)
 
 				w.Resize(fyne.NewSize(340, 180))
