@@ -4,6 +4,9 @@ go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.1.1
+	github.com/deckarep/gosx-notifier v0.0.0-20180201035817-e127226297fb
+	github.com/hajimehoshi/go-mp3 v0.3.2
+	github.com/hajimehoshi/oto v1.0.1
 	github.com/hirokimoto/uniswap-api v0.0.0-20211125214530-d0e745108d2d
 	github.com/leekchan/accounting v1.0.0
 )
@@ -11,7 +14,6 @@ require (
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deckarep/gosx-notifier v0.0.0-20180201035817-e127226297fb // indirect
 	github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gaillard/go-online-linear-regression v0.0.0-20141229020853-7c08c77db3ba // indirect
@@ -20,8 +22,6 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb // indirect
 	github.com/godbus/dbus/v5 v5.0.4 // indirect
 	github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff // indirect
-	github.com/hajimehoshi/go-mp3 v0.3.2 // indirect
-	github.com/hajimehoshi/oto v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
