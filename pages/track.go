@@ -17,20 +17,13 @@ import (
 	"github.com/uniswap-auto-gui/data"
 )
 
-type Setting struct {
-	min float64
-	max float64
-}
-
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
 	var activePair string
+	var oldPrices = map[string]float64{}
+
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 	trades := map[string]uniswap.Swaps{}
-	settings := map[string]Setting{}
-
-	temp, _ := data.ReadTrackSettings()
-	fmt.Println(temp)
 
 	pairs := data.ReadTrackPairs()
 	pairsdata := binding.BindStringList(&pairs)
@@ -102,7 +95,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
 
 				btnSave := widget.NewButton("Save", func() {
-					settings[pair] = Setting{min, max}
 					data.SaveTrackSettings(pair, min, max)
 				})
 
@@ -141,21 +133,13 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					_, c := unitrades.WholePriceChanges(swaps)
 					_, _, d := unitrades.Duration(swaps)
 
-					if label.Text != n {
-						label.SetText(n)
-					}
+					label.SetText(n)
 					_price := money.FormatMoney(p)
-					if price.Text != _price {
-						price.SetText(_price)
-					}
+					price.SetText(_price)
 					_change := money.FormatMoney(c)
-					if change.Text != _change {
-						change.SetText(_change)
-					}
+					change.SetText(_change)
 					_duration := fmt.Sprintf("%.2f hours", d)
-					if duration.Text != _duration {
-						duration.SetText(_duration)
-					}
+					duration.SetText(_duration)
 
 					if activePair == pair &&
 						selected.Data.Swaps[0].Id != swaps.Data.Swaps[0].Id {
@@ -163,6 +147,35 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						rightList.Refresh()
 					}
 					trades[pair] = swaps
+
+					if p != oldPrices[pair] {
+						t := time.Now()
+						message := fmt.Sprintf("%s: %s %s %s", n, price, change, duration)
+						title := "Priced Up!"
+						if c < 0 {
+							title = "Priced Down!"
+						}
+						// link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
+
+						min, max := data.ReadMinMax(pair)
+
+						if p < min {
+							title = fmt.Sprintf("Warning Low! Watch %s", n)
+						}
+						if p > max {
+							title = fmt.Sprintf("Warning High! Watch %s", n)
+						}
+						fyne.CurrentApp().SendNotification(&fyne.Notification{
+							Title:   title,
+							Content: message,
+						})
+
+						fmt.Println(".")
+						fmt.Println(t.Format("2006/01/02 15:04:05"), ": ", n, price, change, duration)
+						fmt.Println(".")
+					}
+					oldPrices[pair] = p
+
 					time.Sleep(time.Second * 1)
 				}
 			}()
