@@ -9,10 +9,12 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	gosxnotifier "github.com/deckarep/gosx-notifier"
 	uniswap "github.com/hirokimoto/uniswap-api"
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
 	unitrades "github.com/hirokimoto/uniswap-api/swaps"
 	"github.com/uniswap-auto-gui/data"
+	"github.com/uniswap-auto-gui/services"
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
@@ -86,6 +88,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					p, _ := unitrade.Price(swaps.Data.Swaps[0])
 					_, c := unitrades.WholePriceChanges(swaps)
 					_, _, d := unitrades.Duration(swaps)
+					alert(pair, n, p, c, d)
 
 					switch id.Col {
 					case 0:
@@ -115,46 +118,22 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	return container.NewHSplit(listPanel, rightList)
 }
 
-// func trackOnePair(pair string) {
-// 	var swaps uniswap.Swaps
-// 	cc := make(chan string, 1)
-// 	go uniswap.SwapsByCounts(cc, 2, pair)
+func alert(pair string, n string, p float64, c float64, d float64) {
+	message := fmt.Sprintf("%s: %f %f %f", n, p, c, d)
+	title := "Priced Up!"
+	if c < 0 {
+		title = "Priced Down!"
+	}
+	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
-// 	msg := <-cc
-// 	json.Unmarshal([]byte(msg), &swaps)
+	min, max := data.ReadMinMax(pair)
 
-// 	if len(swaps.Data.Swaps) == 0 {
-// 		return
-// 	}
+	if p < min {
+		title = fmt.Sprintf("Warning Low! Watch %s", n)
+	}
+	if p > max {
+		title = fmt.Sprintf("Warning High! Watch %s", n)
+	}
 
-// 	n := unitrade.Name(swaps.Data.Swaps[0])
-// 	p, _ := unitrade.Price(swaps.Data.Swaps[0])
-// 	_, c := unitrades.WholePriceChanges(swaps)
-// 	_, _, d := unitrades.Duration(swaps)
-
-// 	// if p != oldPrices[pair] {
-// 	// 	t := time.Now()
-// 	// 	message := fmt.Sprintf("%s: %f %f %f", n, p, c, d)
-// 	// 	title := "Priced Up!"
-// 	// 	if c < 0 {
-// 	// 		title = "Priced Down!"
-// 	// 	}
-// 	// 	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
-
-// 	// 	min, max := data.ReadMinMax(pair)
-
-// 	// 	if p < min {
-// 	// 		title = fmt.Sprintf("Warning Low! Watch %s", n)
-// 	// 	}
-// 	// 	if p > max {
-// 	// 		title = fmt.Sprintf("Warning High! Watch %s", n)
-// 	// 	}
-
-// 	// 	services.Alert(title, message, link, gosxnotifier.Morse)
-
-// 	// 	fmt.Println(".")
-// 	// 	fmt.Println(t.Format("2006/01/02 15:04:05"), ": ", n, p, c, d)
-// 	// 	fmt.Println(".")
-// 	// }
-// 	// oldPrices[pair] = p
-// }
+	services.Alert(title, message, link, gosxnotifier.Morse)
+}
