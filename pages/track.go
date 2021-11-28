@@ -171,7 +171,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						})
 
 						fmt.Println(".")
-						fmt.Println(t.Format("2006/01/02 15:04:05"), ": ", n, price, change, duration)
+						fmt.Println(t.Format("2006/01/02 15:04:05"), ": ", n, p, c, d)
 						fmt.Println(".")
 					}
 					oldPrices[pair] = p
