@@ -11,8 +11,6 @@ import (
 	uniswap "github.com/hirokimoto/uniswap-api"
 )
 
-var alertMessage string
-
 func UniswapMarkketPairs(target chan<- []uniswap.Pair) {
 	var pairs []uniswap.Pair
 	skip := 0
@@ -50,11 +48,6 @@ func Notify(title string, message string) {
 }
 
 func Alert(title string, message string, link string, sound gosxnotifier.Sound) {
-	if message == alertMessage {
-		return
-	}
-
-	alertMessage = message
 	if runtime.GOOS == "windows" {
 
 	} else {

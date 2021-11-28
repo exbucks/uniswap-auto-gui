@@ -110,7 +110,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						oldPrices[id.Row] != 0.0 &&
 						oldTransactions[id.Row] != swaps.Data.Swaps[0].Id &&
 						current > oldTimes[id.Row] {
-						alert(records, pair, n, p, c, d)
+						go alert(records, pair, n, p, c, d)
 						oldPrices[id.Row] = p
 						oldTimes[id.Row] = current
 						oldTransactions[id.Row] = swaps.Data.Swaps[0].Id
