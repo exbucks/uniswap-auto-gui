@@ -30,8 +30,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	settings := map[string]Setting{}
 
 	temp, _ := data.ReadTrackSettings()
-	json.Unmarshal(temp, &settings)
-	fmt.Println(settings)
+	fmt.Println(temp)
 
 	pairs := data.ReadTrackPairs()
 	pairsdata := binding.BindStringList(&pairs)
@@ -105,10 +104,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 				btnSave := widget.NewButton("Save", func() {
 					settings[pair] = Setting{min, max}
-					fmt.Println(min, ":", max)
-					fmt.Println(settings[pair])
-					temp, _ := json.Marshal(settings)
-					data.SaveTrackSettings(temp)
+					data.SaveTrackSettings()
 				})
 
 				settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)

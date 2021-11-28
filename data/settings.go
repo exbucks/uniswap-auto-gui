@@ -1,15 +1,35 @@
 package data
 
 import (
+	"encoding/csv"
 	"fmt"
+	"log"
+	"os"
 
 	"fyne.io/fyne/v2"
 )
 
-func SaveTrackSettings(settings []byte) {
-	path := absolutePath() + "/settings.txt"
-	fmt.Println(settings)
-	err := writeBytes(settings, path)
+func SaveTrackSettings() {
+	records := [][]string{
+		{"first_name", "last_name", "occupation"},
+		{"John", "Doe", "gardener"},
+		{"Lucy", "Smith", "teacher"},
+		{"Brian", "Bethamy", "programmer"},
+	}
+
+	filePath := absolutePath() + "/settings.csv"
+	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0777)
+	if err != nil {
+		log.Fatal("Unable to read input file "+filePath, err)
+	}
+	defer f.Close()
+
+	csvWriter := csv.NewWriter(f)
+	err = csvWriter.WriteAll(records)
+
+	if err != nil {
+		log.Fatal("Unable to parse file as CSV for "+filePath, err)
+	}
 
 	if err != nil {
 		fyne.CurrentApp().SendNotification(&fyne.Notification{
@@ -25,15 +45,21 @@ func SaveTrackSettings(settings []byte) {
 	})
 }
 
-func ReadTrackSettings() ([]byte, error) {
-	path := absolutePath() + "/settings.txt"
-	bytes, err := readBytes(path)
-	fmt.Println(bytes)
+func ReadTrackSettings() ([][]string, error) {
+	filePath := absolutePath() + "/settings.csv"
+	f, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal("Unable to read input file "+filePath, err)
+	}
+	defer f.Close()
+
+	csvReader := csv.NewReader(f)
+	records, err := csvReader.ReadAll()
 
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		log.Fatal("Unable to parse file as CSV for "+filePath, err)
 	}
+	fmt.Println(records)
 
-	return bytes, nil
+	return records, nil
 }
