@@ -10,11 +10,13 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	gosxnotifier "github.com/deckarep/gosx-notifier"
 	uniswap "github.com/hirokimoto/uniswap-api"
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
 	unitrades "github.com/hirokimoto/uniswap-api/swaps"
 	"github.com/leekchan/accounting"
 	"github.com/uniswap-auto-gui/data"
+	"github.com/uniswap-auto-gui/services"
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
@@ -155,7 +157,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						if c < 0 {
 							title = "Priced Down!"
 						}
-						// link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
+						link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
 						min, max := data.ReadMinMax(pair)
 
@@ -165,10 +167,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						if p > max {
 							title = fmt.Sprintf("Warning High! Watch %s", n)
 						}
-						fyne.CurrentApp().SendNotification(&fyne.Notification{
-							Title:   title,
-							Content: message,
-						})
+
+						services.Alert(title, message, link, gosxnotifier.Morse)
 
 						fmt.Println(".")
 						fmt.Println(t.Format("2006/01/02 15:04:05"), ": ", n, p, c, d)

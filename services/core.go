@@ -3,9 +3,11 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"sync"
 
 	"fyne.io/fyne/v2"
+	gosxnotifier "github.com/deckarep/gosx-notifier"
 	uniswap "github.com/hirokimoto/uniswap-api"
 )
 
@@ -43,4 +45,16 @@ func Notify(title string, message string) {
 		Title:   title,
 		Content: message,
 	})
+}
+
+func Alert(title string, message string, link string, sound gosxnotifier.Sound) {
+	if runtime.GOOS == "windows" {
+
+	} else {
+		note := gosxnotifier.NewNotification(message)
+		note.Title = title
+		note.Sound = sound
+		note.Link = link
+		note.Push()
+	}
 }
