@@ -71,7 +71,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 6 },
+		func() (int, int) { return len(pairs), 5 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -114,8 +114,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						}
 					case 1:
 						if label.Text == "" {
-							if len(n) > 10 {
-								label.SetText(n[0:10])
+							if len(n) > 20 {
+								label.SetText(n[0:20] + "...")
 							} else {
 								label.SetText(n)
 							}
@@ -132,8 +132,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						if label.Text != fmt.Sprintf("%f", d) {
 							label.SetText(fmt.Sprintf("%f", d))
 						}
-					case 5:
-
 					default:
 					}
 					time.Sleep(time.Second * 1)
@@ -145,7 +143,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(2, 100)
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 100)
-	table.SetColumnWidth(5, 100)
+	table.OnSelected = func(id widget.TableCellID) {
+		fmt.Printf("Select col %d row %d\n", id.Col, id.Row)
+	}
 
 	listPanel := container.NewBorder(nil, control, nil, nil, table)
 
