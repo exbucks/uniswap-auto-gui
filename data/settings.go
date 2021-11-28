@@ -78,8 +78,7 @@ func ReadTrackSettings() ([][]string, error) {
 	return records, nil
 }
 
-func ReadMinMax(address string) (float64, float64) {
-	records, _ := ReadTrackSettings()
+func ReadMinMax(records [][]string, address string) (float64, float64) {
 	min := 0.0
 	max := 0.0
 	for _, record := range records {

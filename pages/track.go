@@ -21,6 +21,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
 
 	pairs := data.ReadTrackPairs()
+	records, _ := data.ReadTrackSettings()
 
 	name := widget.NewEntry()
 	name.SetPlaceHolder("0x385769E84B650C070964398929DB67250B7ff72C")
@@ -88,7 +89,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					p, _ := unitrade.Price(swaps.Data.Swaps[0])
 					_, c := unitrades.WholePriceChanges(swaps)
 					_, _, d := unitrades.Duration(swaps)
-					alert(pair, n, p, c, d)
+					alert(records, pair, n, p, c, d)
 
 					switch id.Col {
 					case 0:
@@ -118,7 +119,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	return container.NewHSplit(listPanel, rightList)
 }
 
-func alert(pair string, n string, p float64, c float64, d float64) {
+func alert(records [][]string, pair string, n string, p float64, c float64, d float64) {
 	message := fmt.Sprintf("%s: %f %f %f", n, p, c, d)
 	title := "Priced Up!"
 	if c < 0 {
@@ -126,7 +127,7 @@ func alert(pair string, n string, p float64, c float64, d float64) {
 	}
 	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
-	min, max := data.ReadMinMax(pair)
+	min, max := data.ReadMinMax(records, pair)
 
 	if p < min {
 		title = fmt.Sprintf("Warning Low! Watch %s", n)
