@@ -198,13 +198,16 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
 	min, max := data.ReadMinMax(records, pair)
+	sound := gosxnotifier.Morse
 
 	if p < min {
 		title = fmt.Sprintf("Warning Low! Watch %s", n)
+		sound = gosxnotifier.Default
 	}
 	if p > max {
 		title = fmt.Sprintf("Warning High! Watch %s", n)
+		sound = gosxnotifier.Default
 	}
 
-	services.Alert(title, message, link, gosxnotifier.Morse)
+	services.Alert(title, message, link, sound)
 }
