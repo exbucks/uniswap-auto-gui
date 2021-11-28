@@ -99,7 +99,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
 				maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
 
-				settingsPanel := container.NewVBox(minPanel, maxPanel)
+				btnSave := widget.NewButton("Save", func() {
+
+				})
+
+				settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)
 				w.SetContent(settingsPanel)
 
 				w.Resize(fyne.NewSize(340, 180))
