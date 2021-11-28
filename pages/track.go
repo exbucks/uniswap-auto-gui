@@ -21,6 +21,7 @@ import (
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
+	var activePair string
 
 	pairs := data.ReadTrackPairs()
 	records, _ := data.ReadTrackSettings()
@@ -102,10 +103,15 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					_, _, d := unitrades.Duration(swaps)
 
 					current, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
-					if oldPrices[id.Row] != p && current > oldTimes[id.Row] {
+					if oldPrices[id.Row] != p && oldPrices[id.Row] != 0.0 && current > oldTimes[id.Row] {
 						alert(records, pair, n, p, c, d)
 						oldPrices[id.Row] = p
 						oldTimes[id.Row] = current
+					}
+
+					if pair == activePair {
+						selected = swaps
+						rightList.Refresh()
 					}
 
 					switch id.Col {
@@ -145,8 +151,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 100)
 	table.OnSelected = func(id widget.TableCellID) {
+		pair := pairs[id.Row]
+		if id.Col == 1 {
+			activePair = pair
+		}
 		if id.Col == 2 {
-			pair := pairs[id.Row]
 			w := fyne.CurrentApp().NewWindow("Settings")
 
 			min, max := data.ReadMinMax(records, pair)
