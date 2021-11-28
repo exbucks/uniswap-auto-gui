@@ -150,7 +150,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					if p != oldPrices[pair] {
 						t := time.Now()
-						message := fmt.Sprintf("%s: %s %s %s", n, price, change, duration)
+						message := fmt.Sprintf("%s: %f %f %f", n, p, c, d)
 						title := "Priced Up!"
 						if c < 0 {
 							title = "Priced Down!"
