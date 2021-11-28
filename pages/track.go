@@ -28,10 +28,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	records, _ := data.ReadTrackSettings()
 	oldPrices := make([]float64, 0)
 	oldTimes := make([]int64, 0)
+	oldTransactions := make([]string, 0)
 
 	for _, _ = range pairs {
 		oldPrices = append(oldPrices, 0.0)
 		oldTimes = append(oldTimes, 1638118581)
+		oldTransactions = append(oldTransactions, "")
 	}
 
 	name := widget.NewEntry()
@@ -104,10 +106,14 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					_, _, d := unitrades.Duration(swaps)
 
 					current, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
-					if oldPrices[id.Row] != p && oldPrices[id.Row] != 0.0 && current > oldTimes[id.Row] {
+					if oldPrices[id.Row] != p &&
+						oldPrices[id.Row] != 0.0 &&
+						oldTransactions[id.Row] != swaps.Data.Swaps[0].Id &&
+						current > oldTimes[id.Row] {
 						alert(records, pair, n, p, c, d)
 						oldPrices[id.Row] = p
 						oldTimes[id.Row] = current
+						oldTransactions[id.Row] = swaps.Data.Swaps[0].Id
 					}
 					if oldPrices[id.Row] == 0.0 {
 						oldPrices[id.Row] = p
@@ -162,6 +168,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			activePair = pair
 		}
 		if id.Col == 2 {
+			records, _ = data.ReadTrackSettings()
 			w := fyne.CurrentApp().NewWindow("Settings")
 
 			min, max := data.ReadMinMax(records, pair)
