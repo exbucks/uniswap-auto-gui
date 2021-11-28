@@ -15,6 +15,7 @@ import (
 	uniswap "github.com/hirokimoto/uniswap-api"
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
 	unitrades "github.com/hirokimoto/uniswap-api/swaps"
+	"github.com/skratchdot/open-golang/open"
 	"github.com/uniswap-auto-gui/data"
 	"github.com/uniswap-auto-gui/services"
 )
@@ -154,6 +155,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(4, 100)
 	table.OnSelected = func(id widget.TableCellID) {
 		pair := pairs[id.Row]
+		if id.Col == 0 {
+			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
+		}
 		if id.Col == 1 {
 			activePair = pair
 		}
