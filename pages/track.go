@@ -34,9 +34,17 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	name.SetPlaceHolder("0x385769E84B650C070964398929DB67250B7ff72C")
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
-			pairs = append(pairs, name.Text)
-			pairsdata.Reload()
-			data.SaveTrackPairs(pairs)
+			isExisted := false
+			for _, item := range pairs {
+				if item == name.Text {
+					isExisted = true
+				}
+			}
+			if !isExisted {
+				pairs = append(pairs, name.Text)
+				pairsdata.Reload()
+				data.SaveTrackPairs(pairs)
+			}
 		}
 	})
 

@@ -74,7 +74,6 @@ func ReadTrackSettings() ([][]string, error) {
 	if err != nil {
 		log.Fatal("Unable to parse file as CSV for "+filePath, err)
 	}
-	fmt.Println(records)
 
 	return records, nil
 }
