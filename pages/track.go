@@ -7,7 +7,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	gosxnotifier "github.com/deckarep/gosx-notifier"
@@ -27,7 +26,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	trades := map[string]uniswap.Swaps{}
 
 	pairs := data.ReadTrackPairs()
-	pairsdata := binding.BindStringList(&pairs)
 
 	name := widget.NewEntry()
 	name.SetPlaceHolder("0x385769E84B650C070964398929DB67250B7ff72C")
@@ -41,7 +39,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}
 			if !isExisted {
 				pairs = append(pairs, name.Text)
-				pairsdata.Reload()
 				data.SaveTrackPairs(pairs)
 			}
 		}
@@ -68,37 +65,39 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs) + 1, 7 },
+		func() (int, int) { return len(pairs), 7 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("Cell 000, 000")
 		},
 		func(id widget.TableCellID, cell fyne.CanvasObject) {
-			pair := pairs[id.Row]
-			swaps := trades[pair]
-
-			n := unitrade.Name(swaps.Data.Swaps[0])
-			p, _ := unitrade.Price(swaps.Data.Swaps[0])
-			_, c := unitrades.WholePriceChanges(swaps)
-			_, _, d := unitrades.Duration(swaps)
-
 			label := cell.(*widget.Label)
-			switch id.Col {
-			case 0:
-				label.SetText(fmt.Sprintf("%d", id.Row+1))
-			case 1:
-				label.SetText(n)
-			case 2:
-				label.SetText(fmt.Sprintf("%f", p))
-			case 3:
-				label.SetText(fmt.Sprintf("%f", c))
-			case 4:
-				label.SetText(fmt.Sprintf("%f", d))
-			default:
-				label.SetText(fmt.Sprintf("Cell %d, %d", id.Row+1, id.Col+1))
+			pair := pairs[id.Row]
+			trade := trades[pair]
+
+			if trade.Data.Swaps != nil {
+				// n := unitrade.Name(trade.Data.Swaps[0])
+				p, _ := unitrade.Price(trade.Data.Swaps[0])
+				_, c := unitrades.WholePriceChanges(trade)
+				_, _, d := unitrades.Duration(trade)
+
+				switch id.Col {
+				case 0:
+					label.SetText(fmt.Sprintf("%d", id.Row+1))
+				case 1:
+					label.SetText(pair)
+				case 2:
+					label.SetText(fmt.Sprintf("%f", p))
+				case 3:
+					label.SetText(fmt.Sprintf("%f", c))
+				case 4:
+					label.SetText(fmt.Sprintf("%f", d))
+				default:
+					label.SetText(fmt.Sprintf("Cell %d, %d", id.Row+1, id.Col+1))
+				}
 			}
 		})
 	table.SetColumnWidth(0, 34)
-	table.SetColumnWidth(1, 102)
+	table.SetColumnWidth(1, 202)
 
 	// leftList.OnSelected = func(id widget.ListItemID) {
 	// 	activePair, _ = pairsdata.GetValue(id)
@@ -165,7 +164,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				fmt.Println(".")
 			}
 			oldPrices[pair] = p
-
+			table.Refresh()
 			time.Sleep(time.Second * 1)
 		}
 	}()
