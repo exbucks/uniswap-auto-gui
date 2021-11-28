@@ -8,7 +8,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	uniswap "github.com/hirokimoto/uniswap-api"
@@ -23,22 +22,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var activePair string
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 	trades := map[string]uniswap.Swaps{}
-
-	ai := 0.1
-	aidata := binding.BindFloat(&ai)
-	label := widget.NewLabelWithData(binding.FloatToStringWithFormat(aidata, "Price change percent (*100): %f"))
-	entry := widget.NewEntryWithData(binding.FloatToString(aidata))
-	alertInterval := container.NewBorder(nil, nil, label, entry)
-
-	min := 0.3
-	mindata := binding.BindFloat(&min)
-	minLabel := widget.NewLabel("Minimum")
-	minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
-
-	max := 0.4
-	maxdata := binding.BindFloat(&max)
-	maxLabel := widget.NewLabel("Maximum")
-	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
 
 	alerts := widget.NewRadioGroup([]string{"Alert any changes!", "Alert special changes!"}, func(s string) {
 		fmt.Println(s)
@@ -102,10 +85,26 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			right := obj.(*fyne.Container).Objects[1].(*fyne.Container)
 			btnSettings := right.Objects[0].(*widget.Button)
 			btnSettings.OnTapped = func() {
-				w := fyne.CurrentApp().NewWindow("Fixed")
-				w.SetContent(fyne.NewContainerWithLayout(layout.NewCenterLayout(), widget.NewLabel("Hello World!")))
+				w := fyne.CurrentApp().NewWindow("Settings")
 
-				w.Resize(fyne.NewSize(240, 180))
+				min := 0.3
+				mindata := binding.BindFloat(&min)
+				minLabel := widget.NewLabel("Minimum")
+				minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
+				minPanel := container.NewHBox(minLabel, minEntry)
+
+				max := 0.4
+				maxdata := binding.BindFloat(&max)
+				maxLabel := widget.NewLabel("Maximum")
+				maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
+				maxPanel := container.NewHBox(maxLabel, maxEntry)
+
+				mmPanel := container.NewBorder(nil, nil, minPanel, maxPanel)
+
+				settingsPanel := container.NewVBox(mmPanel)
+				w.SetContent(settingsPanel)
+
+				w.Resize(fyne.NewSize(340, 180))
 				w.SetFixedSize(true)
 				w.Show()
 			}
@@ -170,10 +169,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		rightList.Refresh()
 	}
 
-	minPanel := container.NewHBox(minLabel, minEntry)
-	maxPanel := container.NewHBox(maxLabel, maxEntry)
-	alertSpecialPanel := container.NewBorder(nil, nil, minPanel, maxPanel)
-	settings := container.NewVBox(alertInterval, alerts, alertSpecialPanel)
+	settings := container.NewVBox(alerts)
 	listPanel := container.NewBorder(settings, control, nil, nil, leftList)
 	return container.NewHSplit(listPanel, rightList)
 }
