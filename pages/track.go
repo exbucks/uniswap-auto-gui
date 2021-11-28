@@ -3,6 +3,7 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -22,10 +23,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	pairs := data.ReadTrackPairs()
 	records, _ := data.ReadTrackSettings()
-	old := make([]float64, 0.0)
+	oldPrices := make([]float64, 0)
+	oldTimes := make([]int64, 0)
 
 	for _, _ = range pairs {
-		old = append(old, 0.0)
+		oldPrices = append(oldPrices, 0.0)
+		oldTimes = append(oldTimes, 1638118581)
 	}
 
 	name := widget.NewEntry()
@@ -95,8 +98,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					_, c := unitrades.WholePriceChanges(swaps)
 					_, _, d := unitrades.Duration(swaps)
 
-					if old[id.Row] != p {
+					current, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
+					if oldPrices[id.Row] != p && current > oldTimes[id.Row] {
 						alert(records, pair, n, p, c, d)
+						oldPrices[id.Row] = p
+						oldTimes[id.Row] = current
 					}
 
 					switch id.Col {
@@ -120,7 +126,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						}
 					default:
 					}
-					old[id.Row] = p
 					time.Sleep(time.Second * 1)
 				}
 			}()
