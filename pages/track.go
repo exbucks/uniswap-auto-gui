@@ -58,7 +58,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 7 },
+		func() (int, int) { return len(pairs), 5 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("Cell 000, 000")
 		},
@@ -67,6 +67,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 			go func() {
 				for {
+					fmt.Print(".")
 					pair := pairs[id.Row]
 
 					var swaps uniswap.Swaps
@@ -76,7 +77,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
 
-					if len(swaps.Data.Swaps) == 0 {
+					if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
+						time.Sleep(time.Second * 1)
 						continue
 					}
 
@@ -89,7 +91,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					case 0:
 						label.SetText(fmt.Sprintf("%d", id.Row+1))
 					case 1:
-						label.SetText(n)
+						if label.Text != n {
+							label.SetText(n)
+						}
 					case 2:
 						label.SetText(fmt.Sprintf("%f", p))
 					case 3:
