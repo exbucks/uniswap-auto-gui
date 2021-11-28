@@ -108,6 +108,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 						oldPrices[id.Row] = p
 						oldTimes[id.Row] = current
 					}
+					if oldPrices[id.Row] == 0.0 {
+						oldPrices[id.Row] = p
+						oldTimes[id.Row] = current
+					}
 
 					if pair == activePair {
 						selected = swaps
@@ -116,9 +120,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					switch id.Col {
 					case 0:
-						if label.Text == "" {
-							label.SetText(fmt.Sprintf("%d", id.Row+1))
-						}
+						label.SetText(fmt.Sprintf("%d", id.Row+1))
 					case 1:
 						if label.Text == "" {
 							if len(n) > 20 {
