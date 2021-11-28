@@ -93,18 +93,23 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					case 0:
 						label.SetText(fmt.Sprintf("%d", id.Row+1))
 					case 1:
-						label.SetText(n)
+						if label.Text != n {
+							label.SetText(n)
+						}
 					case 2:
 						if label.Text != fmt.Sprintf("%f", p) {
 							alert(records, pair, n, p, c, d)
 							label.SetText(fmt.Sprintf("%f", p))
 						}
 					case 3:
-						label.SetText(fmt.Sprintf("%f", c))
+						if label.Text != fmt.Sprintf("%f", c) {
+							label.SetText(fmt.Sprintf("%f", c))
+						}
 					case 4:
-						label.SetText(fmt.Sprintf("%f", d))
+						if label.Text != fmt.Sprintf("%f", d) {
+							label.SetText(fmt.Sprintf("%f", d))
+						}
 					default:
-						label.SetText(fmt.Sprintf("Cell %d, %d", id.Row+1, id.Col+1))
 					}
 					time.Sleep(time.Second * 1)
 				}
