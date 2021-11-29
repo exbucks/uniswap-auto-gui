@@ -30,12 +30,14 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	oldPrices := make([]float64, 0)
 	oldChanges := make([]float64, 0)
 	oldDurations := make([]float64, 0)
+	oldTransactions := make([]string, 0)
 
 	for _, _ = range pairs {
 		oldNames = append(oldNames, "")
 		oldPrices = append(oldPrices, 0.0)
 		oldChanges = append(oldChanges, 0.0)
 		oldDurations = append(oldDurations, 0.0)
+		oldTransactions = append(oldTransactions, "")
 	}
 
 	name := widget.NewEntry()
@@ -54,6 +56,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				oldPrices = append(oldPrices, 0.0)
 				oldChanges = append(oldChanges, 0.0)
 				oldDurations = append(oldDurations, 0.0)
+				oldTransactions = append(oldTransactions, "")
 				data.SaveTrackPairs(pairs)
 			}
 		}
@@ -125,7 +128,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
+
 					selected = swaps
+					rightList.Refresh()
+
 					time.Sleep(time.Second * 1)
 				}
 			}()
@@ -179,20 +185,24 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					continue
 				}
 
-				n := unitrade.Name(swaps.Data.Swaps[0])
-				p, _ := unitrade.Price(swaps.Data.Swaps[0])
-				_, c := unitrades.WholePriceChanges(swaps)
-				_, _, d := unitrades.Duration(swaps)
+				if swaps.Data.Swaps[0].Id != oldTransactions[index] {
+					n := unitrade.Name(swaps.Data.Swaps[0])
+					p, _ := unitrade.Price(swaps.Data.Swaps[0])
+					_, c := unitrades.WholePriceChanges(swaps)
+					_, _, d := unitrades.Duration(swaps)
 
-				if oldPrices[index] != p {
-					go alert(records, pair, n, p, c, d)
-					table.Refresh()
+					oldNames[index] = n
+					oldChanges[index] = c
+					oldDurations[index] = d
+					oldTransactions[index] = swaps.Data.Swaps[0].Id
+
+					if oldPrices[index] != 0.0 {
+						go alert(records, pair, n, p, c, d)
+					}
 					oldPrices[index] = p
-				}
 
-				oldNames[index] = n
-				oldChanges[index] = c
-				oldDurations[index] = d
+					table.Refresh()
+				}
 
 				wg.Done()
 			}
