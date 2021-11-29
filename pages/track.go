@@ -113,7 +113,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			case 4:
 				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
 			case 5:
-				label.SetText(fmt.Sprintf("%.2f", 100*oldChanges[id.Row]/oldPrices[id.Row]) + "%")
+				label.SetText(fmt.Sprintf("%.2f%%", 100*oldChanges[id.Row]/oldPrices[id.Row]))
 			case 6:
 				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
 			case 7:
@@ -258,7 +258,7 @@ func trackPair(pair string, index int, records [][]string, table *widget.Table) 
 }
 
 func alert(records [][]string, pair string, n string, p float64, c float64, d float64) {
-	message := fmt.Sprintf("%s: %f %f %f", n, p, c, d)
+	message := fmt.Sprintf("%s: %f %f%% %f", n, p, 100*c/p, d)
 	title := "Priced Up!"
 	if c < 0 {
 		title = "Priced Down!"
