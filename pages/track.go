@@ -3,6 +3,7 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -160,35 +161,41 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	listPanel := container.NewBorder(nil, control, nil, nil, table)
 
 	go func() {
-		for index, pair := range pairs {
-			fmt.Print(".")
+		for {
+			for index, pair := range pairs {
+				var wg sync.WaitGroup
+				wg.Add(1)
+				fmt.Print(".")
 
-			var swaps uniswap.Swaps
-			cc := make(chan string, 1)
-			go uniswap.SwapsByCounts(cc, 2, pair)
+				var swaps uniswap.Swaps
+				cc := make(chan string, 1)
+				go uniswap.SwapsByCounts(cc, 2, pair)
 
-			msg := <-cc
-			json.Unmarshal([]byte(msg), &swaps)
+				msg := <-cc
+				json.Unmarshal([]byte(msg), &swaps)
 
-			if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
-				time.Sleep(time.Second * 1)
-				continue
+				if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
+					time.Sleep(time.Second * 1)
+					continue
+				}
+
+				n := unitrade.Name(swaps.Data.Swaps[0])
+				p, _ := unitrade.Price(swaps.Data.Swaps[0])
+				_, c := unitrades.WholePriceChanges(swaps)
+				_, _, d := unitrades.Duration(swaps)
+
+				if oldPrices[index] != p {
+					go alert(records, pair, n, p, c, d)
+					table.Refresh()
+					oldPrices[index] = p
+				}
+
+				oldNames[index] = n
+				oldChanges[index] = c
+				oldDurations[index] = d
+
+				wg.Done()
 			}
-
-			n := unitrade.Name(swaps.Data.Swaps[0])
-			p, _ := unitrade.Price(swaps.Data.Swaps[0])
-			_, c := unitrades.WholePriceChanges(swaps)
-			_, _, d := unitrades.Duration(swaps)
-
-			if oldPrices[index] != p {
-				go alert(records, pair, n, p, c, d)
-				oldPrices[index] = p
-			}
-
-			oldNames[index] = n
-			oldChanges[index] = c
-			oldDurations[index] = d
-
 			time.Sleep(time.Second * 1)
 		}
 	}()
