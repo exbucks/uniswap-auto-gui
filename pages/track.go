@@ -3,7 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -25,14 +24,17 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 	pairs := data.ReadTrackPairs()
 	records, _ := data.ReadTrackSettings()
+
+	oldNames := make([]string, 0)
 	oldPrices := make([]float64, 0)
-	oldTimes := make([]int64, 0)
-	oldTransactions := make([]string, 0)
+	oldChanges := make([]float64, 0)
+	oldDurations := make([]float64, 0)
 
 	for _, _ = range pairs {
+		oldNames = append(oldNames, "")
 		oldPrices = append(oldPrices, 0.0)
-		oldTimes = append(oldTimes, 1638118581)
-		oldTransactions = append(oldTransactions, "")
+		oldChanges = append(oldChanges, 0.0)
+		oldDurations = append(oldDurations, 0.0)
 	}
 
 	name := widget.NewEntry()
@@ -47,8 +49,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}
 			if !isExisted {
 				pairs = append(pairs, name.Text)
+				oldNames = append(oldNames, "")
 				oldPrices = append(oldPrices, 0.0)
-				oldTimes = append(oldTimes, 1638118581)
+				oldChanges = append(oldChanges, 0.0)
+				oldDurations = append(oldDurations, 0.0)
 				data.SaveTrackPairs(pairs)
 			}
 		}
@@ -83,64 +87,23 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 		},
 		func(id widget.TableCellID, cell fyne.CanvasObject) {
 			label := cell.(*widget.Label)
-
-			go func() {
-				for {
-					fmt.Print(".")
-					pair := pairs[id.Row]
-
-					var swaps uniswap.Swaps
-					cc := make(chan string, 1)
-					go uniswap.SwapsByCounts(cc, 2, pair)
-
-					msg := <-cc
-					json.Unmarshal([]byte(msg), &swaps)
-
-					if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
-						time.Sleep(time.Second * 1)
-						continue
-					}
-
-					n := unitrade.Name(swaps.Data.Swaps[0])
-					p, _ := unitrade.Price(swaps.Data.Swaps[0])
-					_, c := unitrades.WholePriceChanges(swaps)
-					_, _, d := unitrades.Duration(swaps)
-
-					current, _ := strconv.ParseInt(swaps.Data.Swaps[0].Timestamp, 10, 64)
-					if oldPrices[id.Row] != p &&
-						oldPrices[id.Row] != 0.0 &&
-						oldTransactions[id.Row] != swaps.Data.Swaps[0].Id &&
-						current > oldTimes[id.Row] {
-						go alert(records, pair, n, p, c, d)
-						oldPrices[id.Row] = p
-						oldTimes[id.Row] = current
-						oldTransactions[id.Row] = swaps.Data.Swaps[0].Id
-					}
-					if oldPrices[id.Row] == 0.0 {
-						oldPrices[id.Row] = p
-						oldTimes[id.Row] = current
-					}
-
-					switch id.Col {
-					case 0:
-						label.SetText(fmt.Sprintf("%d", id.Row+1))
-					case 1:
-						if len(n) > 20 {
-							label.SetText(n[0:20] + "...")
-						} else {
-							label.SetText(n)
-						}
-					case 2:
-						label.SetText(fmt.Sprintf("%f", p))
-					case 3:
-						label.SetText(fmt.Sprintf("%f", c))
-					case 4:
-						label.SetText(fmt.Sprintf("%f", d))
-					default:
-					}
-					time.Sleep(time.Second * 1)
+			switch id.Col {
+			case 0:
+				label.SetText(fmt.Sprintf("%d", id.Row+1))
+			case 1:
+				if len(oldNames[id.Row]) > 20 {
+					label.SetText(oldNames[id.Row][0:20] + "...")
+				} else {
+					label.SetText(oldNames[id.Row])
 				}
-			}()
+			case 2:
+				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
+			case 3:
+				label.SetText(fmt.Sprintf("%f", oldChanges[id.Row]))
+			case 4:
+				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
+			default:
+			}
 		})
 	table.SetColumnWidth(0, 60)
 	table.SetColumnWidth(1, 202)
@@ -195,6 +158,40 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	}
 
 	listPanel := container.NewBorder(nil, control, nil, nil, table)
+
+	go func() {
+		for index, pair := range pairs {
+			fmt.Print(".")
+
+			var swaps uniswap.Swaps
+			cc := make(chan string, 1)
+			go uniswap.SwapsByCounts(cc, 2, pair)
+
+			msg := <-cc
+			json.Unmarshal([]byte(msg), &swaps)
+
+			if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
+				time.Sleep(time.Second * 1)
+				continue
+			}
+
+			n := unitrade.Name(swaps.Data.Swaps[0])
+			p, _ := unitrade.Price(swaps.Data.Swaps[0])
+			_, c := unitrades.WholePriceChanges(swaps)
+			_, _, d := unitrades.Duration(swaps)
+
+			if oldPrices[index] != p {
+				go alert(records, pair, n, p, c, d)
+				oldPrices[index] = p
+			}
+
+			oldNames[index] = n
+			oldChanges[index] = c
+			oldDurations[index] = d
+
+			time.Sleep(time.Second * 1)
+		}
+	}()
 
 	return container.NewHSplit(listPanel, rightList)
 }
