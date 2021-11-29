@@ -113,7 +113,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			case 4:
 				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
 			case 5:
-				label.SetText(fmt.Sprintf("%f", oldChanges[id.Row]))
+				label.SetText(fmt.Sprintf("%.2f", 100*oldChanges[id.Row]/oldPrices[id.Row]) + "%")
 			case 6:
 				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
 			case 7:
