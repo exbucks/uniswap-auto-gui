@@ -126,10 +126,20 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
 		}
 		if id.Col == 1 {
-
+			if id.Row > 0 {
+				temp := pairs[id.Row-1]
+				pairs[id.Row-1] = pairs[id.Row]
+				pairs[id.Row] = temp
+				table.Refresh()
+			}
 		}
 		if id.Col == 2 {
-
+			if id.Row < len(pairs)-1 {
+				temp := pairs[id.Row+1]
+				pairs[id.Row+1] = pairs[id.Row]
+				pairs[id.Row] = temp
+				table.Refresh()
+			}
 		}
 		if id.Col == 3 {
 			go func() {
