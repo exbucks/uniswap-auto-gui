@@ -91,7 +91,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 7 },
+		func() (int, int) { return len(pairs), 9 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -116,6 +116,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				label.SetText(fmt.Sprintf("%f", oldChanges[id.Row]))
 			case 6:
 				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
+			case 7:
+				label.SetText("-")
 			default:
 			}
 		})
@@ -126,6 +128,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(4, 100)
 	table.SetColumnWidth(5, 100)
 	table.SetColumnWidth(6, 100)
+	table.SetColumnWidth(7, 30)
 	table.OnSelected = func(id widget.TableCellID) {
 		pair := pairs[id.Row]
 		if id.Col == 0 {
@@ -197,6 +200,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			w.Resize(fyne.NewSize(340, 180))
 			w.SetFixedSize(true)
 			w.Show()
+		}
+		if id.Col == 7 {
+
 		}
 	}
 
