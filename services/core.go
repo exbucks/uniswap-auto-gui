@@ -49,7 +49,10 @@ func Notify(title string, message string) {
 
 func Alert(title string, message string, link string, sound gosxnotifier.Sound) {
 	if runtime.GOOS == "windows" {
-
+		fyne.CurrentApp().SendNotification(&fyne.Notification{
+			Title:   title,
+			Content: message,
+		})
 	} else {
 		note := gosxnotifier.NewNotification(message)
 		note.Title = title
