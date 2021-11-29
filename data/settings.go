@@ -64,8 +64,6 @@ func SaveTrackSettings(address string, min float64, max float64, coin float64, u
 
 func ReadTrackSettings() ([][]string, error) {
 	filePath := absolutePath() + "/settings.csv"
-	fmt.Println(filePath)
-	fmt.Println(filePath)
 	f, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal("Unable to read input file "+filePath, err)
