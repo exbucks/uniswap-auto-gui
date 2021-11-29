@@ -202,7 +202,11 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			w.Show()
 		}
 		if id.Col == 7 {
-
+			pairs[id.Row] = pairs[len(pairs)-1]
+			pairs[len(pairs)-1] = ""
+			pairs = pairs[:len(pairs)-1]
+			data.SaveTrackPairs(pairs)
+			table.Refresh()
 		}
 	}
 
