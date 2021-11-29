@@ -176,7 +176,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}()
 		}
 		if id.Col == 4 {
-			showSettings(records, pair)
+			showSettings(pair)
 		}
 		if id.Col == 7 {
 			pairs[id.Row] = pairs[len(pairs)-1]
@@ -246,9 +246,11 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 	}
 	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
-	min, max, _, _ := data.ReadSetting(records, pair)
+	min, max, coin, usd := data.ReadSetting(records, pair)
+	gas := 100.0
 	sound := gosxnotifier.Morse
 
+	earn := p*coin - usd - gas
 	if p < min {
 		title = fmt.Sprintf("Warning Low! Watch %s", n)
 		sound = gosxnotifier.Default
@@ -258,11 +260,26 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 		sound = gosxnotifier.Default
 	}
 
+	if coin != 0.0 && usd != 0.0 {
+		if earn > 0.0 {
+			percent := 100 * earn / p * coin
+			if percent > 0.0 && percent < 5.0 {
+				title = fmt.Sprintf("You can sell! Watch %s", n)
+			} else if percent > 5.0 && percent < 10.0 {
+				title = fmt.Sprintf("Sell! Watch %s", n)
+			} else if percent > 10.0 {
+				title = fmt.Sprintf("Sell sell sell %s!", n)
+			}
+		} else {
+			title += fmt.Sprintf("   %f$", earn)
+		}
+	}
+
 	services.Alert(title, message, link, sound)
 }
 
-func showSettings(records [][]string, pair string) {
-	records, _ = data.ReadTrackSettings()
+func showSettings(pair string) {
+	records, _ := data.ReadTrackSettings()
 	w := fyne.CurrentApp().NewWindow("Settings")
 
 	min, max, coin, usd := data.ReadSetting(records, pair)
