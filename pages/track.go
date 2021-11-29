@@ -22,7 +22,6 @@ import (
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
-	var activePair string
 
 	pairs := data.ReadTrackPairs()
 	records, _ := data.ReadTrackSettings()
@@ -65,13 +64,15 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			return container.NewHBox(widget.NewIcon(theme.DocumentIcon()), widget.NewLabel("target"), widget.NewLabel("price"), widget.NewLabel("amount"), widget.NewLabel("amount1"), widget.NewLabel("amount2"))
 		},
 		func(id widget.ListItemID, item fyne.CanvasObject) {
-			price, target, amount, amount1, amount2 := unitrade.Trade(selected.Data.Swaps[id])
+			if len(selected.Data.Swaps) > 1 {
+				price, target, amount, amount1, amount2 := unitrade.Trade(selected.Data.Swaps[id])
 
-			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(target)
-			item.(*fyne.Container).Objects[2].(*widget.Label).SetText(fmt.Sprintf("$%f", price))
-			item.(*fyne.Container).Objects[3].(*widget.Label).SetText(amount)
-			item.(*fyne.Container).Objects[4].(*widget.Label).SetText(amount1)
-			item.(*fyne.Container).Objects[5].(*widget.Label).SetText(amount2)
+				item.(*fyne.Container).Objects[1].(*widget.Label).SetText(target)
+				item.(*fyne.Container).Objects[2].(*widget.Label).SetText(fmt.Sprintf("$%f", price))
+				item.(*fyne.Container).Objects[3].(*widget.Label).SetText(amount)
+				item.(*fyne.Container).Objects[4].(*widget.Label).SetText(amount1)
+				item.(*fyne.Container).Objects[5].(*widget.Label).SetText(amount2)
+			}
 		},
 	)
 
@@ -90,7 +91,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					var swaps uniswap.Swaps
 					cc := make(chan string, 1)
-					go uniswap.SwapsByCounts(cc, 20, pair)
+					go uniswap.SwapsByCounts(cc, 2, pair)
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
@@ -118,11 +119,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 					if oldPrices[id.Row] == 0.0 {
 						oldPrices[id.Row] = p
 						oldTimes[id.Row] = current
-					}
-
-					if pair == activePair {
-						selected = swaps
-						rightList.Refresh()
 					}
 
 					switch id.Col {
@@ -165,7 +161,18 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
 		}
 		if id.Col == 1 {
-			activePair = pair
+			go func() {
+				for {
+					var swaps uniswap.Swaps
+					cc := make(chan string, 1)
+					go uniswap.SwapsByCounts(cc, 20, pair)
+
+					msg := <-cc
+					json.Unmarshal([]byte(msg), &swaps)
+					selected = swaps
+					time.Sleep(time.Second * 1)
+				}
+			}()
 		}
 		if id.Col == 2 {
 			records, _ = data.ReadTrackSettings()
