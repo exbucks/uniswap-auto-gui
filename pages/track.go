@@ -20,17 +20,23 @@ import (
 	"github.com/uniswap-auto-gui/services"
 )
 
+var oldNames []string
+var oldPrices []float64
+var oldChanges []float64
+var oldDurations []float64
+var oldTransactions []string
+
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected uniswap.Swaps
 
 	pairs := data.ReadTrackPairs()
 	records, _ := data.ReadTrackSettings()
 
-	oldNames := make([]string, 0)
-	oldPrices := make([]float64, 0)
-	oldChanges := make([]float64, 0)
-	oldDurations := make([]float64, 0)
-	oldTransactions := make([]string, 0)
+	oldNames = make([]string, 0)
+	oldPrices = make([]float64, 0)
+	oldChanges = make([]float64, 0)
+	oldDurations = make([]float64, 0)
+	oldTransactions = make([]string, 0)
 
 	for _, _ = range pairs {
 		oldNames = append(oldNames, "")
@@ -130,7 +136,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				temp := pairs[id.Row-1]
 				pairs[id.Row-1] = pairs[id.Row]
 				pairs[id.Row] = temp
-				table.Refresh()
 			}
 		}
 		if id.Col == 2 {
@@ -140,6 +145,17 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				pairs[id.Row] = temp
 				table.Refresh()
 			}
+		}
+		if id.Col == 1 || id.Col == 2 {
+			for index, pair := range pairs {
+				var wg sync.WaitGroup
+				wg.Add(1)
+				fmt.Print(".")
+				trackPair(pair, index, records, table)
+				wg.Done()
+			}
+			data.SaveTrackPairs(pairs)
+			table.Refresh()
 		}
 		if id.Col == 3 {
 			go func() {
@@ -194,38 +210,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				var wg sync.WaitGroup
 				wg.Add(1)
 				fmt.Print(".")
-
-				var swaps uniswap.Swaps
-				cc := make(chan string, 1)
-				go uniswap.SwapsByCounts(cc, 2, pair)
-
-				msg := <-cc
-				json.Unmarshal([]byte(msg), &swaps)
-
-				if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
-					time.Sleep(time.Second * 1)
-					continue
-				}
-
-				if swaps.Data.Swaps[0].Id != oldTransactions[index] {
-					n := unitrade.Name(swaps.Data.Swaps[0])
-					p, _ := unitrade.Price(swaps.Data.Swaps[0])
-					_, c := unitrades.WholePriceChanges(swaps)
-					_, _, d := unitrades.Duration(swaps)
-
-					oldNames[index] = n
-					oldChanges[index] = c
-					oldDurations[index] = d
-					oldTransactions[index] = swaps.Data.Swaps[0].Id
-
-					if oldPrices[index] != 0.0 {
-						go alert(records, pair, n, p, c, d)
-					}
-					oldPrices[index] = p
-
-					table.Refresh()
-				}
-
+				trackPair(pair, index, records, table)
 				wg.Done()
 			}
 			time.Sleep(time.Second * 1)
@@ -233,6 +218,39 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	}()
 
 	return container.NewHSplit(listPanel, rightList)
+}
+
+func trackPair(pair string, index int, records [][]string, table *widget.Table) {
+	var swaps uniswap.Swaps
+	cc := make(chan string, 1)
+	go uniswap.SwapsByCounts(cc, 2, pair)
+
+	msg := <-cc
+	json.Unmarshal([]byte(msg), &swaps)
+
+	if len(swaps.Data.Swaps) == 0 || swaps.Data.Swaps == nil {
+		time.Sleep(time.Second * 1)
+		return
+	}
+
+	if swaps.Data.Swaps[0].Id != oldTransactions[index] {
+		n := unitrade.Name(swaps.Data.Swaps[0])
+		p, _ := unitrade.Price(swaps.Data.Swaps[0])
+		_, c := unitrades.WholePriceChanges(swaps)
+		_, _, d := unitrades.Duration(swaps)
+
+		oldNames[index] = n
+		oldChanges[index] = c
+		oldDurations[index] = d
+		oldTransactions[index] = swaps.Data.Swaps[0].Id
+
+		if oldPrices[index] != 0.0 {
+			go alert(records, pair, n, p, c, d)
+		}
+		oldPrices[index] = p
+
+		table.Refresh()
+	}
 }
 
 func alert(records [][]string, pair string, n string, p float64, c float64, d float64) {
