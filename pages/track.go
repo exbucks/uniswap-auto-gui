@@ -85,7 +85,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 5 },
+		func() (int, int) { return len(pairs), 7 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -95,31 +95,43 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			case 0:
 				label.SetText(fmt.Sprintf("%d", id.Row+1))
 			case 1:
+				label.SetText("<")
+			case 2:
+				label.SetText(">")
+			case 3:
 				if len(oldNames[id.Row]) > 20 {
 					label.SetText(oldNames[id.Row][0:20] + "...")
 				} else {
 					label.SetText(oldNames[id.Row])
 				}
-			case 2:
-				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
-			case 3:
-				label.SetText(fmt.Sprintf("%f", oldChanges[id.Row]))
 			case 4:
+				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
+			case 5:
+				label.SetText(fmt.Sprintf("%f", oldChanges[id.Row]))
+			case 6:
 				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
 			default:
 			}
 		})
 	table.SetColumnWidth(0, 40)
-	table.SetColumnWidth(1, 202)
-	table.SetColumnWidth(2, 100)
-	table.SetColumnWidth(3, 100)
+	table.SetColumnWidth(1, 25)
+	table.SetColumnWidth(2, 25)
+	table.SetColumnWidth(3, 202)
 	table.SetColumnWidth(4, 100)
+	table.SetColumnWidth(5, 100)
+	table.SetColumnWidth(6, 100)
 	table.OnSelected = func(id widget.TableCellID) {
 		pair := pairs[id.Row]
 		if id.Col == 0 {
 			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
 		}
 		if id.Col == 1 {
+
+		}
+		if id.Col == 2 {
+
+		}
+		if id.Col == 3 {
 			go func() {
 				for {
 					var swaps uniswap.Swaps
@@ -136,7 +148,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				}
 			}()
 		}
-		if id.Col == 2 {
+		if id.Col == 4 {
 			records, _ = data.ReadTrackSettings()
 			w := fyne.CurrentApp().NewWindow("Settings")
 
