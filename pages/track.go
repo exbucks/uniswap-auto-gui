@@ -246,7 +246,7 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 	}
 	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
-	min, max := data.ReadMinMax(records, pair)
+	min, max, _ := data.ReadSetting(records, pair)
 	sound := gosxnotifier.Morse
 
 	if p < min {
@@ -265,7 +265,7 @@ func showSettings(records [][]string, pair string) {
 	records, _ = data.ReadTrackSettings()
 	w := fyne.CurrentApp().NewWindow("Settings")
 
-	min, max := data.ReadMinMax(records, pair)
+	min, max, amount := data.ReadSetting(records, pair)
 	mindata := binding.BindFloat(&min)
 	minLabel := widget.NewLabel("Minimum")
 	minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
@@ -276,11 +276,16 @@ func showSettings(records [][]string, pair string) {
 	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
 	maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
 
+	amountdata := binding.BindFloat(&amount)
+	amountLabel := widget.NewLabel("Amount")
+	amountEntry := widget.NewEntryWithData(binding.FloatToString(amountdata))
+	amountPanel := container.NewGridWithColumns(2, amountLabel, amountEntry)
+
 	btnSave := widget.NewButton("Save", func() {
-		data.SaveTrackSettings(pair, min, max)
+		data.SaveTrackSettings(pair, min, max, amount)
 	})
 
-	settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)
+	settingsPanel := container.NewVBox(minPanel, maxPanel, amountPanel, btnSave)
 	w.SetContent(settingsPanel)
 
 	w.Resize(fyne.NewSize(340, 180))
