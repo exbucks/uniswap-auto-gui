@@ -109,7 +109,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			default:
 			}
 		})
-	table.SetColumnWidth(0, 60)
+	table.SetColumnWidth(0, 40)
 	table.SetColumnWidth(1, 202)
 	table.SetColumnWidth(2, 100)
 	table.SetColumnWidth(3, 100)
