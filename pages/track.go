@@ -248,7 +248,7 @@ func trackPair(pair string, index int, records [][]string, table *widget.Table) 
 		oldDurations[index] = d
 		oldTransactions[index] = swaps.Data.Swaps[0].Id
 
-		if oldPrices[index] != 0.0 {
+		if oldPrices[index] != 0.0 || c/p > 0.1 {
 			go alert(records, pair, n, p, c, d)
 		}
 		oldPrices[index] = p
