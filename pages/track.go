@@ -176,30 +176,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			}()
 		}
 		if id.Col == 4 {
-			records, _ = data.ReadTrackSettings()
-			w := fyne.CurrentApp().NewWindow("Settings")
-
-			min, max := data.ReadMinMax(records, pair)
-			mindata := binding.BindFloat(&min)
-			minLabel := widget.NewLabel("Minimum")
-			minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
-			minPanel := container.NewGridWithColumns(2, minLabel, minEntry)
-
-			maxdata := binding.BindFloat(&max)
-			maxLabel := widget.NewLabel("Maximum")
-			maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
-			maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
-
-			btnSave := widget.NewButton("Save", func() {
-				data.SaveTrackSettings(pair, min, max)
-			})
-
-			settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)
-			w.SetContent(settingsPanel)
-
-			w.Resize(fyne.NewSize(340, 180))
-			w.SetFixedSize(true)
-			w.Show()
+			showSettings(records, pair)
 		}
 		if id.Col == 7 {
 			pairs[id.Row] = pairs[len(pairs)-1]
@@ -282,4 +259,31 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 	}
 
 	services.Alert(title, message, link, sound)
+}
+
+func showSettings(records [][]string, pair string) {
+	records, _ = data.ReadTrackSettings()
+	w := fyne.CurrentApp().NewWindow("Settings")
+
+	min, max := data.ReadMinMax(records, pair)
+	mindata := binding.BindFloat(&min)
+	minLabel := widget.NewLabel("Minimum")
+	minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
+	minPanel := container.NewGridWithColumns(2, minLabel, minEntry)
+
+	maxdata := binding.BindFloat(&max)
+	maxLabel := widget.NewLabel("Maximum")
+	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
+	maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
+
+	btnSave := widget.NewButton("Save", func() {
+		data.SaveTrackSettings(pair, min, max)
+	})
+
+	settingsPanel := container.NewVBox(minPanel, maxPanel, btnSave)
+	w.SetContent(settingsPanel)
+
+	w.Resize(fyne.NewSize(340, 180))
+	w.SetFixedSize(true)
+	w.Show()
 }
