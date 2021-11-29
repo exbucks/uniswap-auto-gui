@@ -246,7 +246,7 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 	}
 	link := fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair)
 
-	min, max, _ := data.ReadSetting(records, pair)
+	min, max, _, _ := data.ReadSetting(records, pair)
 	sound := gosxnotifier.Morse
 
 	if p < min {
@@ -265,7 +265,7 @@ func showSettings(records [][]string, pair string) {
 	records, _ = data.ReadTrackSettings()
 	w := fyne.CurrentApp().NewWindow("Settings")
 
-	min, max, amount := data.ReadSetting(records, pair)
+	min, max, coin, usd := data.ReadSetting(records, pair)
 	mindata := binding.BindFloat(&min)
 	minLabel := widget.NewLabel("Minimum")
 	minEntry := widget.NewEntryWithData(binding.FloatToString(mindata))
@@ -276,19 +276,24 @@ func showSettings(records [][]string, pair string) {
 	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
 	maxPanel := container.NewGridWithColumns(2, maxLabel, maxEntry)
 
-	amountdata := binding.BindFloat(&amount)
-	amountLabel := widget.NewLabel("Amount")
-	amountEntry := widget.NewEntryWithData(binding.FloatToString(amountdata))
-	amountPanel := container.NewGridWithColumns(2, amountLabel, amountEntry)
+	coindata := binding.BindFloat(&coin)
+	coinLabel := widget.NewLabel("Coin")
+	coinEntry := widget.NewEntryWithData(binding.FloatToString(coindata))
+	coinPanel := container.NewGridWithColumns(2, coinLabel, coinEntry)
+
+	usddata := binding.BindFloat(&usd)
+	usdLabel := widget.NewLabel("USD")
+	usdEntry := widget.NewEntryWithData(binding.FloatToString(usddata))
+	usdPanel := container.NewGridWithColumns(2, usdLabel, usdEntry)
 
 	btnSave := widget.NewButton("Save", func() {
-		data.SaveTrackSettings(pair, min, max, amount)
+		data.SaveTrackSettings(pair, min, max, coin, usd)
 	})
 
-	settingsPanel := container.NewVBox(minPanel, maxPanel, amountPanel, btnSave)
+	settingsPanel := container.NewVBox(minPanel, maxPanel, coinPanel, usdPanel, btnSave)
 	w.SetContent(settingsPanel)
 
-	w.Resize(fyne.NewSize(340, 180))
+	w.Resize(fyne.NewSize(340, 200))
 	w.SetFixedSize(true)
 	w.Show()
 }
