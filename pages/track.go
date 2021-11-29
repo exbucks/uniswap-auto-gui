@@ -136,6 +136,9 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				temp := pairs[id.Row-1]
 				pairs[id.Row-1] = pairs[id.Row]
 				pairs[id.Row] = temp
+
+				trackPair(pairs[id.Row-1], id.Row-1, records, table)
+				trackPair(pairs[id.Row], id.Row, records, table)
 			}
 		}
 		if id.Col == 2 {
@@ -143,17 +146,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				temp := pairs[id.Row+1]
 				pairs[id.Row+1] = pairs[id.Row]
 				pairs[id.Row] = temp
-				table.Refresh()
+
+				trackPair(pairs[id.Row], id.Row, records, table)
+				trackPair(pairs[id.Row+1], id.Row+1, records, table)
 			}
 		}
 		if id.Col == 1 || id.Col == 2 {
-			for index, pair := range pairs {
-				var wg sync.WaitGroup
-				wg.Add(1)
-				fmt.Print(".")
-				trackPair(pair, index, records, table)
-				wg.Done()
-			}
 			data.SaveTrackPairs(pairs)
 			table.Refresh()
 		}
