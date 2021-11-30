@@ -13,13 +13,14 @@ type Page struct {
 var (
 	// Pages defines the metadata for each page
 	Pages = map[string]Page{
-		"welcome": {"Welcome", "", welcomeScreen},
-		"track":   {"Track", "", trackScreen},
-		"trades":  {"Trades", "", tradesScreen},
+		"welcome":   {"Welcome", "", welcomeScreen},
+		"favorites": {"Favorites", "", trackFavorites},
+		"track":     {"Track", "", trackScreen},
+		"trades":    {"Trades", "", tradesScreen},
 	}
 
 	// PageIndex  defines how our pages should be laid out in the index tree
 	PageIndex = map[string][]string{
-		"": {"welcome", "track", "trades"},
+		"": {"welcome", "favorites", "track", "trades"},
 	}
 )
