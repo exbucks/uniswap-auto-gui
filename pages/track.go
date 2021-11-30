@@ -91,7 +91,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 9 },
+		func() (int, int) { return len(pairs), 8 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
