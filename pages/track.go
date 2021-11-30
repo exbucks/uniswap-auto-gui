@@ -264,11 +264,11 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 		if earn > 0.0 {
 			percent := 100 * earn / p * coin
 			if percent > 0.0 && percent < 5.0 {
-				title = fmt.Sprintf("You can sell! Watch %s", n)
+				title = fmt.Sprintf("You can sell(+%f$)! Watch %s", earn, n)
 			} else if percent > 5.0 && percent < 10.0 {
-				title = fmt.Sprintf("Sell! Watch %s", n)
+				title = fmt.Sprintf("Sell(+%f$)! Watch %s", earn, n)
 			} else if percent > 10.0 {
-				title = fmt.Sprintf("Sell sell sell %s!", n)
+				title = fmt.Sprintf("Sell sell sell(+%f$) %s!", earn, n)
 			}
 		} else {
 			title += fmt.Sprintf("   %f$", earn)

@@ -4,28 +4,28 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
+	"github.com/hirokimoto/crypto-auto/services"
+	"github.com/uniswap-auto-gui/services"
 )
 
 func SaveTrackPairs(pairs []string) {
-	path := absolutePath() + "/pairs.txt"
-	err := writeLines(pairs, path)
-
-	if err != nil {
-		fyne.CurrentApp().SendNotification(&fyne.Notification{
-			Title:   "Error",
-			Content: "Failed tracking pairs!",
-		})
-		return
-	}
-
-	fyne.CurrentApp().SendNotification(&fyne.Notification{
-		Title:   "Success",
-		Content: "Saved tracking pairs successfully!",
-	})
+	writePairs("/pairs.txt", pairs)
 }
 
 func ReadTrackPairs() []string {
-	path := absolutePath() + "/pairs.txt"
+	readPairs("/pairs.txt")
+}
+
+func SaveTradePairs(pairs []string) {
+	writePairs("/trades.txt", pairs)
+}
+
+func ReadTradePairs() {
+	readPairs("/trades.txt")
+}
+
+func readPairs(file string) []string {
+	path := absolutePath() + file
 	pairs, err := readLines(path)
 
 	if err != nil {
@@ -36,4 +36,19 @@ func ReadTrackPairs() []string {
 	}
 
 	return pairs
+}
+
+func writePairs(file string, pairs []string) {
+	path := absolutePath() + file
+	err := writeLines(pairs, path)
+
+	if err != nil {
+		fyne.CurrentApp().SendNotification(&fyne.Notification{
+			Title:   "Error",
+			Content: "Failed tracking pairs!",
+		})
+		return
+	}
+
+	services.Notify("Success", "Saved tracking pairs successfully!")
 }

@@ -26,7 +26,8 @@ func GetAllPairs(target chan int) {
 				target <- 111
 				return
 			}
-			// SaveAllPairs(&pairs)
+
+			// SaveTradePairs(&pairs)
 			skip += 1
 			target <- skip
 			defer wg.Done()
