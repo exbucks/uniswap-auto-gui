@@ -91,7 +91,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 9 },
+		func() (int, int) { return len(pairs), 8 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -105,8 +105,8 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			case 2:
 				label.SetText(">")
 			case 3:
-				if len(oldNames[id.Row]) > 20 {
-					label.SetText(oldNames[id.Row][0:20] + "...")
+				if len(oldNames[id.Row]) > 30 {
+					label.SetText(oldNames[id.Row][0:30] + "...")
 				} else {
 					label.SetText(oldNames[id.Row])
 				}
@@ -124,7 +124,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(0, 40)
 	table.SetColumnWidth(1, 25)
 	table.SetColumnWidth(2, 25)
-	table.SetColumnWidth(3, 202)
+	table.SetColumnWidth(3, 250)
 	table.SetColumnWidth(4, 100)
 	table.SetColumnWidth(5, 100)
 	table.SetColumnWidth(6, 100)
@@ -228,6 +228,13 @@ func trackPair(pair string, index int, records [][]string, table *widget.Table) 
 		oldChanges[index] = c
 		oldDurations[index] = d
 		oldTransactions[index] = swaps.Data.Swaps[0].Id
+
+		_, _, coin, usd := data.ReadSetting(records, pair)
+		gas := 100.0
+		if coin != 0.0 && usd != 0.0 {
+			earn := p*coin - usd - gas
+			oldNames[index] += fmt.Sprintf("(%.2f$)", earn)
+		}
 
 		if oldPrices[index] != 0.0 || c/p > 0.1 {
 			go alert(records, pair, n, p, c, d)
