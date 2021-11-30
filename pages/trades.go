@@ -52,7 +52,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				label.SetText(trades[pair.Id].Status)
 			}
 		})
-	table.SetColumnWidth(0, 34)
+	table.SetColumnWidth(0, 60)
 	table.SetColumnWidth(1, 250)
 	table.SetColumnWidth(2, 150)
 	table.SetColumnWidth(3, 100)
