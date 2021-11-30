@@ -32,9 +32,9 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	var actives []uniswap.Pair
 
 	table := widget.NewTable(
-		func() (int, int) { return len(actives), 7 },
+		func() (int, int) { return len(actives), 5 },
 		func() fyne.CanvasObject {
-			return widget.NewLabel("Cell 000, 000")
+			return widget.NewLabel("")
 		},
 		func(id widget.TableCellID, cell fyne.CanvasObject) {
 			label := cell.(*widget.Label)
