@@ -4,8 +4,7 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
-	"github.com/hirokimoto/crypto-auto/services"
-	"github.com/uniswap-auto-gui/services"
+	"github.com/hirokimoto/uniswap-auto-gui/services"
 )
 
 func SaveTrackPairs(pairs []string) {

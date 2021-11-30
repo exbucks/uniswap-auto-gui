@@ -10,7 +10,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	uniswap "github.com/hirokimoto/uniswap-api"
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
-	"github.com/uniswap-auto-gui/services"
+	"github.com/hirokimoto/uniswap-auto-gui/services"
 )
 
 type Trade struct {

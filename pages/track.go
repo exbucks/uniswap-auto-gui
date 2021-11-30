@@ -15,9 +15,9 @@ import (
 	uniswap "github.com/hirokimoto/uniswap-api"
 	unitrade "github.com/hirokimoto/uniswap-api/swap"
 	unitrades "github.com/hirokimoto/uniswap-api/swaps"
+	"github.com/hirokimoto/uniswap-auto-gui/data"
+	"github.com/hirokimoto/uniswap-auto-gui/services"
 	"github.com/skratchdot/open-golang/open"
-	"github.com/uniswap-auto-gui/data"
-	"github.com/uniswap-auto-gui/services"
 )
 
 var oldNames []string

@@ -12,7 +12,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/uniswap-auto-gui/pages"
+	"github.com/hirokimoto/uniswap-auto-gui/pages"
 )
 
 const preferenceCurrentPage = "currentPage"
