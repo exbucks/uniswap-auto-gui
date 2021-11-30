@@ -60,7 +60,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	table.OnSelected = func(id widget.TableCellID) {
 		pair := actives[id.Row]
 		if id.Col == 0 {
-			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
+			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair.Id))
 		}
 	}
 
