@@ -65,9 +65,9 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	}
 
 	infProgress := widget.NewProgressBarInfinite()
-	infProgress.Stop()
+	infProgress.Start()
 
-	find := widget.NewButton("Find Trading Pairs", func() {
+	find := widget.NewButton("Fetching Pairs", func() {
 		infProgress.Start()
 
 		go func() {
@@ -125,6 +125,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 			infProgress.Stop()
 		}()
 	})
+	find.Disable()
 
 	go func() {
 		pc := make(chan []uniswap.Pair, 1)
@@ -137,6 +138,9 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		}
 
 		data.SaveTradePairs(list)
+		find.Enable()
+		find.SetText("Find Tradable Pairs")
+		infProgress.Stop()
 	}()
 
 	controls := container.NewVBox(find, infProgress)
