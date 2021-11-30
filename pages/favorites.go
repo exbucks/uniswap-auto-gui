@@ -81,7 +81,7 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 9 },
+		func() (int, int) { return len(pairs), 8 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -91,30 +91,27 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 			case 0:
 				label.SetText(fmt.Sprintf("%d", id.Row+1))
 			case 1:
-				label.SetText("#")
-			case 2:
 				label.SetText("<")
-			case 3:
+			case 2:
 				label.SetText(">")
-			case 4:
+			case 3:
 				if len(oldNames[id.Row]) > 30 {
 					label.SetText(oldNames[id.Row][0:30] + "...")
 				} else {
 					label.SetText(oldNames[id.Row])
 				}
-			case 5:
+			case 4:
 				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
-			case 6:
+			case 5:
 				label.SetText(fmt.Sprintf("%.2f%%", 100*oldChanges[id.Row]/oldPrices[id.Row]))
-			case 7:
+			case 6:
 				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
-			case 8:
+			case 7:
 				label.SetText("-")
 			default:
 			}
 		})
 	table.SetColumnWidth(0, 40)
-	table.SetColumnWidth(1, 30)
 	table.SetColumnWidth(2, 25)
 	table.SetColumnWidth(3, 25)
 	table.SetColumnWidth(4, 250)
@@ -128,9 +125,6 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
 		}
 		if id.Col == 1 {
-
-		}
-		if id.Col == 2 {
 			if id.Row > 0 {
 				temp := pairs[id.Row-1]
 				pairs[id.Row-1] = pairs[id.Row]
@@ -140,7 +134,7 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 				trackPair(pairs[id.Row], id.Row, records, table)
 			}
 		}
-		if id.Col == 3 {
+		if id.Col == 2 {
 			if id.Row < len(pairs)-1 {
 				temp := pairs[id.Row+1]
 				pairs[id.Row+1] = pairs[id.Row]
@@ -150,7 +144,7 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 				trackPair(pairs[id.Row+1], id.Row+1, records, table)
 			}
 		}
-		if id.Col == 2 || id.Col == 3 {
+		if id.Col == 1 || id.Col == 2 {
 			data.SaveTrackPairs(pairs)
 			table.Refresh()
 		}
@@ -171,10 +165,10 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 				}
 			}()
 		}
-		if id.Col == 5 {
+		if id.Col == 4 {
 			showSettings(pair)
 		}
-		if id.Col == 8 {
+		if id.Col == 7 {
 			pairs[id.Row] = pairs[len(pairs)-1]
 			pairs[len(pairs)-1] = ""
 			pairs = pairs[:len(pairs)-1]
