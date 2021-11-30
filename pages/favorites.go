@@ -188,7 +188,7 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 				trackPair(pair, index, records, table)
 				wg.Done()
 			}
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Second * 1)
 		}
 	}()
 
