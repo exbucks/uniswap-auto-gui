@@ -7,6 +7,17 @@ import (
 	"github.com/hirokimoto/uniswap-auto-gui/services"
 )
 
+func ReadFavorites() []string {
+	pairs := readPairs("/favorites.txt")
+	return pairs
+}
+
+func SaveFavorites(pair string) {
+	pairs := readPairs("/favorites.txt")
+	pairs = append(pairs, pair)
+	writePairs("/favorites.txt", pairs)
+}
+
 func SaveTrackPairs(pairs []string) {
 	writePairs("/pairs.txt", pairs)
 }

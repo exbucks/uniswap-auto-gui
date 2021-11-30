@@ -91,7 +91,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	)
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 8 },
+		func() (int, int) { return len(pairs), 9 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("")
 		},
@@ -101,40 +101,46 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			case 0:
 				label.SetText(fmt.Sprintf("%d", id.Row+1))
 			case 1:
-				label.SetText("<")
+				label.SetText("#")
 			case 2:
-				label.SetText(">")
+				label.SetText("<")
 			case 3:
+				label.SetText(">")
+			case 4:
 				if len(oldNames[id.Row]) > 30 {
 					label.SetText(oldNames[id.Row][0:30] + "...")
 				} else {
 					label.SetText(oldNames[id.Row])
 				}
-			case 4:
-				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
 			case 5:
-				label.SetText(fmt.Sprintf("%.2f%%", 100*oldChanges[id.Row]/oldPrices[id.Row]))
+				label.SetText(fmt.Sprintf("%f", oldPrices[id.Row]))
 			case 6:
-				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
+				label.SetText(fmt.Sprintf("%.2f%%", 100*oldChanges[id.Row]/oldPrices[id.Row]))
 			case 7:
+				label.SetText(fmt.Sprintf("%f", oldDurations[id.Row]))
+			case 8:
 				label.SetText("-")
 			default:
 			}
 		})
 	table.SetColumnWidth(0, 40)
-	table.SetColumnWidth(1, 25)
+	table.SetColumnWidth(1, 30)
 	table.SetColumnWidth(2, 25)
-	table.SetColumnWidth(3, 250)
-	table.SetColumnWidth(4, 100)
+	table.SetColumnWidth(3, 25)
+	table.SetColumnWidth(4, 250)
 	table.SetColumnWidth(5, 100)
 	table.SetColumnWidth(6, 100)
-	table.SetColumnWidth(7, 30)
+	table.SetColumnWidth(7, 100)
+	table.SetColumnWidth(8, 30)
 	table.OnSelected = func(id widget.TableCellID) {
 		pair := pairs[id.Row]
 		if id.Col == 0 {
 			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
 		}
 		if id.Col == 1 {
+
+		}
+		if id.Col == 2 {
 			if id.Row > 0 {
 				temp := pairs[id.Row-1]
 				pairs[id.Row-1] = pairs[id.Row]
@@ -144,7 +150,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				trackPair(pairs[id.Row], id.Row, records, table)
 			}
 		}
-		if id.Col == 2 {
+		if id.Col == 3 {
 			if id.Row < len(pairs)-1 {
 				temp := pairs[id.Row+1]
 				pairs[id.Row+1] = pairs[id.Row]
@@ -154,7 +160,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				trackPair(pairs[id.Row+1], id.Row+1, records, table)
 			}
 		}
-		if id.Col == 1 || id.Col == 2 {
+		if id.Col == 2 || id.Col == 3 {
 			data.SaveTrackPairs(pairs)
 			table.Refresh()
 		}
@@ -175,10 +181,10 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 				}
 			}()
 		}
-		if id.Col == 4 {
+		if id.Col == 5 {
 			showSettings(pair)
 		}
-		if id.Col == 7 {
+		if id.Col == 8 {
 			pairs[id.Row] = pairs[len(pairs)-1]
 			pairs[len(pairs)-1] = ""
 			pairs = pairs[:len(pairs)-1]
