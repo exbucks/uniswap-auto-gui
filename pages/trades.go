@@ -47,14 +47,14 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 			case 2:
 				label.SetText(fmt.Sprintf("%f", trades[pair.Id].Price))
 			case 3:
-				label.SetText(fmt.Sprintf("%f", trades[pair.Id].Duration))
+				label.SetText(fmt.Sprintf("%.2f", trades[pair.Id].Duration))
 			case 4:
 				label.SetText(trades[pair.Id].Status)
 			}
 		})
 	table.SetColumnWidth(0, 34)
 	table.SetColumnWidth(1, 250)
-	table.SetColumnWidth(2, 100)
+	table.SetColumnWidth(2, 150)
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 100)
 	table.OnSelected = func(id widget.TableCellID) {
