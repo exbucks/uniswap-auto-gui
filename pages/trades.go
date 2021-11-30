@@ -3,8 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"strconv"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -16,6 +14,7 @@ import (
 	unitrades "github.com/hirokimoto/uniswap-api/swaps"
 	"github.com/hirokimoto/uniswap-auto-gui/data"
 	"github.com/hirokimoto/uniswap-auto-gui/services"
+	"github.com/skratchdot/open-golang/open"
 )
 
 type Trade struct {
@@ -58,6 +57,12 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	table.SetColumnWidth(2, 100)
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 100)
+	table.OnSelected = func(id widget.TableCellID) {
+		pair := actives[id.Row]
+		if id.Col == 0 {
+			open.Run(fmt.Sprintf("https://www.dextools.io/app/ether/pair-explorer/%s", pair))
+		}
+	}
 
 	infProgress := widget.NewProgressBarInfinite()
 	infProgress.Stop()
@@ -136,26 +141,6 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 
 	controls := container.NewVBox(find, infProgress)
 	return container.NewBorder(controls, nil, nil, nil, table)
-}
-
-func trackTrade(pair string, index int, progress chan<- int) {
-	duration, _ := strconv.Atoi(os.Getenv("SWAP_DURATION"))
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	ch := make(chan string, 1)
-	if duration > 100 {
-		go uniswap.SwapsByCounts(ch, duration, pair)
-	} else {
-		go uniswap.SwapsByDays(ch, duration, pair)
-	}
-
-	msg := <-ch
-	var swaps uniswap.Swaps
-	json.Unmarshal([]byte(msg), &swaps)
-
-	defer wg.Done()
-	progress <- index
 }
 
 func testRegression(swaps uniswap.Swaps) (float64, float64, float64) {
