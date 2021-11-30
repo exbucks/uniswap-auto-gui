@@ -112,13 +112,13 @@ func trackFavorites(_ fyne.Window) fyne.CanvasObject {
 			}
 		})
 	table.SetColumnWidth(0, 40)
+	table.SetColumnWidth(1, 25)
 	table.SetColumnWidth(2, 25)
-	table.SetColumnWidth(3, 25)
-	table.SetColumnWidth(4, 250)
+	table.SetColumnWidth(3, 250)
+	table.SetColumnWidth(4, 100)
 	table.SetColumnWidth(5, 100)
 	table.SetColumnWidth(6, 100)
-	table.SetColumnWidth(7, 100)
-	table.SetColumnWidth(8, 30)
+	table.SetColumnWidth(7, 30)
 	table.OnSelected = func(id widget.TableCellID) {
 		pair := pairs[id.Row]
 		if id.Col == 0 {
