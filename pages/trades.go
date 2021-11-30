@@ -51,12 +51,13 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				label.SetText(fmt.Sprintf("%f", trades[pair.Id].Duration))
 			case 4:
 				label.SetText(trades[pair.Id].Status)
-			default:
-				label.SetText(fmt.Sprintf("Cell %d, %d", id.Row+1, id.Col+1))
 			}
 		})
 	table.SetColumnWidth(0, 34)
-	table.SetColumnWidth(1, 102)
+	table.SetColumnWidth(1, 250)
+	table.SetColumnWidth(2, 100)
+	table.SetColumnWidth(3, 100)
+	table.SetColumnWidth(4, 100)
 
 	infProgress := widget.NewProgressBarInfinite()
 	infProgress.Stop()
@@ -72,7 +73,7 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				var s uniswap.Swaps
 
 				sc := make(chan string, 1)
-				go uniswap.SwapsByCounts(sc, 2, v.Id)
+				go uniswap.SwapsByCounts(sc, 1000, v.Id)
 				msg := <-sc
 				json.Unmarshal([]byte(msg), &s)
 
@@ -110,9 +111,8 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 						actives = append(actives, v)
 						table.Refresh()
 					}
-
 				}
-				fmt.Print(index, unitrade.Name(s.Data.Swaps[0]), "|")
+				fmt.Print(index, "|")
 
 				defer wg.Done()
 			}
