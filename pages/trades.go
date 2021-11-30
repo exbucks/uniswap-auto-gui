@@ -3,7 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"sync"
@@ -20,26 +19,38 @@ import (
 )
 
 type Trade struct {
-	pair  uniswap.Pair
-	swaps uniswap.Swaps
+	Pair     uniswap.Pair
+	Swaps    uniswap.Swaps
+	Name     string
+	Price    float64
+	Duration float64
+	Status   string
 }
 
 func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 	var pairs []uniswap.Pair
 	trades := map[string]Trade{}
+	var actives []uniswap.Pair
 
 	table := widget.NewTable(
-		func() (int, int) { return len(pairs), 7 },
+		func() (int, int) { return len(actives), 7 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("Cell 000, 000")
 		},
 		func(id widget.TableCellID, cell fyne.CanvasObject) {
 			label := cell.(*widget.Label)
+			pair := actives[id.Row]
 			switch id.Col {
 			case 0:
 				label.SetText(fmt.Sprintf("%d", id.Row+1))
 			case 1:
-				label.SetText(pairs[id.Row].Token0.Symbol)
+				label.SetText(trades[pair.Id].Name)
+			case 2:
+				label.SetText(fmt.Sprintf("%f", trades[pair.Id].Price))
+			case 3:
+				label.SetText(fmt.Sprintf("%f", trades[pair.Id].Duration))
+			case 4:
+				label.SetText(trades[pair.Id].Status)
 			default:
 				label.SetText(fmt.Sprintf("Cell %d, %d", id.Row+1, id.Col+1))
 			}
@@ -54,11 +65,10 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 		infProgress.Start()
 
 		go func() {
-			for _, v := range pairs {
+			for index, v := range pairs {
 				var wg sync.WaitGroup
 				wg.Add(1)
 
-				var t Trade
 				var s uniswap.Swaps
 
 				sc := make(chan string, 1)
@@ -67,12 +77,42 @@ func tradesScreen(_ fyne.Window) fyne.CanvasObject {
 				json.Unmarshal([]byte(msg), &s)
 
 				if len(s.Data.Swaps) > 0 {
-					t.pair = v
-					t.swaps = s
-					trades[v.Id] = t
-					table.Refresh()
-					fmt.Println(unitrade.Name(s.Data.Swaps[0]))
+					n := unitrade.Name(s.Data.Swaps[0])
+					p, _ := unitrade.Price(s.Data.Swaps[0])
+					_, c := unitrades.WholePriceChanges(s)
+					_, _, d := unitrades.Duration(s)
+					old, _ := unitrade.Old(s.Data.Swaps[0])
+					average := unitrades.AveragePrice(s.Data.Swaps)
+
+					// Filter our some tokens which is in the active trading in recent3 days.
+					if old < 3*24 && p > 0.0001 {
+						slope, _, _ := testRegression(s)
+						var isGoingUp = slope > 0
+						var isGoingDown = slope < 0
+						updown := "up"
+						if isGoingUp {
+							updown = "up"
+							fmt.Println("Trending up token ", n, p, average, c, d)
+						}
+						if isGoingDown {
+							updown = "down"
+							fmt.Println("Trending down token ", n, p, average, c, d)
+						}
+
+						var t Trade
+						t.Pair = v
+						t.Swaps = s
+						t.Name = n
+						t.Price = p
+						t.Duration = d
+						t.Status = updown
+						trades[v.Id] = t
+						actives = append(actives, v)
+						table.Refresh()
+					}
+
 				}
+				fmt.Print(index, unitrade.Name(s.Data.Swaps[0]), "|")
 
 				defer wg.Done()
 			}
@@ -113,51 +153,6 @@ func trackTrade(pair string, index int, progress chan<- int) {
 	msg := <-ch
 	var swaps uniswap.Swaps
 	json.Unmarshal([]byte(msg), &swaps)
-
-	if len(swaps.Data.Swaps) > 0 {
-		n := unitrade.Name(swaps.Data.Swaps[0])
-		p, _ := unitrade.Price(swaps.Data.Swaps[0])
-		_, c := unitrades.WholePriceChanges(swaps)
-		_, _, d := unitrades.Duration(swaps)
-		old, _ := unitrade.Old(swaps.Data.Swaps[0])
-		average := unitrades.AveragePrice(swaps.Data.Swaps)
-
-		// Filter our some tokens which is in the active trading in recent3 days.
-		if old < 3*24 && p > 0.0001 {
-			slope, _, _ := testRegression(swaps)
-			var isGoingUp = slope > 0
-			var isGoingDown = slope < 0
-			// var isGoingUp = checkupOfSwaps(swaps)
-			// var isGoingDown = checkdownOfSwaps(swaps)
-			var isStable = math.Abs((average-p)/p) < 0.1
-			var isUnStable = math.Abs((average-p)/p) > 0.1
-
-			target := ""
-			updown := ""
-
-			if isUnStable {
-				target = "unstable"
-				fmt.Println("Unstable token ", n, p, average, c, d)
-			}
-			if isStable {
-				target = "stable"
-				fmt.Println("Stable token ", n, p, average, c, d)
-			}
-			if isGoingUp {
-				updown = "up"
-				fmt.Println("Trending up token ", n, p, average, c, d)
-			}
-			if isGoingDown {
-				updown = "down"
-				fmt.Println("Trending down token ", n, p, average, c, d)
-			}
-
-			if isUnStable || isStable || isGoingUp || isGoingDown {
-
-			}
-		}
-	}
-	fmt.Print(index, "|")
 
 	defer wg.Done()
 	progress <- index

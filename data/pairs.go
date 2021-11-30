@@ -12,15 +12,17 @@ func SaveTrackPairs(pairs []string) {
 }
 
 func ReadTrackPairs() []string {
-	readPairs("/pairs.txt")
+	pairs := readPairs("/pairs.txt")
+	return pairs
 }
 
 func SaveTradePairs(pairs []string) {
 	writePairs("/trades.txt", pairs)
 }
 
-func ReadTradePairs() {
-	readPairs("/trades.txt")
+func ReadTradePairs() []string {
+	pairs := readPairs("/trades.txt")
+	return pairs
 }
 
 func readPairs(file string) []string {
