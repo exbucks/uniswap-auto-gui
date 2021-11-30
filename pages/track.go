@@ -269,7 +269,7 @@ func alert(records [][]string, pair string, n string, p float64, c float64, d fl
 
 	if coin != 0.0 && usd != 0.0 {
 		if earn > 0.0 {
-			percent := 100 * earn / p * coin
+			percent := 100 * earn / usd
 			if percent > 0.0 && percent < 5.0 {
 				title = fmt.Sprintf("You can sell(+%f$)! Watch %s", earn, n)
 			} else if percent > 5.0 && percent < 10.0 {
