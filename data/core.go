@@ -16,6 +16,19 @@ func RemoveOnePair(pair string) error {
 	return err
 }
 
+func addOnePair(pair string, filename string) error {
+	path := absolutePath() + filename
+	pairs, _ := readLines(path)
+	_pairs := []string{}
+	for _, v := range pairs {
+		if v != pair {
+			_pairs = append(_pairs, v)
+		}
+	}
+	err := writeLines(_pairs, path)
+	return err
+}
+
 func writeOnePair(pair string) error {
 	path := absolutePath() + "/pairs.txt"
 	pairs, _ := readLines(path)

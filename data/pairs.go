@@ -15,7 +15,20 @@ func ReadFavorites() []string {
 func SaveFavorites(pair string) {
 	pairs := readPairs("/favorites.txt")
 	pairs = append(pairs, pair)
+	addOnePair(pair, "/pairs.txt")
 	writePairs("/favorites.txt", pairs)
+}
+
+func ReadBabies() []string {
+	pairs := readPairs("/babies.txt")
+	return pairs
+}
+
+func SaveBabies(pair string) {
+	pairs := readPairs("/babies.txt")
+	pairs = append(pairs, pair)
+	addOnePair(pair, "/pairs.txt")
+	writePairs("/babies.txt", pairs)
 }
 
 func SaveTrackPairs(pairs []string) {

@@ -15,12 +15,13 @@ var (
 	Pages = map[string]Page{
 		"welcome":   {"Welcome", "", welcomeScreen},
 		"favorites": {"Favorites", "", trackFavorites},
+		"babies":    {"Babies", "", trackBabies},
 		"track":     {"Track", "", trackScreen},
 		"trades":    {"Trades", "", tradesScreen},
 	}
 
 	// PageIndex  defines how our pages should be laid out in the index tree
 	PageIndex = map[string][]string{
-		"": {"welcome", "favorites", "track", "trades"},
+		"": {"welcome", "favorites", "babies", "track", "trades"},
 	}
 )
